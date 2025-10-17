@@ -1,3 +1,49 @@
+const SENDGRID_URL = 'https://api.sendgrid.com/v3/mail/send';
+
+module.exports = async (req, res) => {
+  if (req.method !== 'POST') {
+    res.status(405).json({ error: 'Method Not Allowed' });
+    return;
+  }
+
+  try {
+    const payload = req.body || {};
+    console.log('api/send-email received payload:', payload);
+
+    if (process.env.SENDGRID_API_KEY) {
+      // forward to SendGrid
+      const body = {
+        personalizations: [
+          { to: [{ email: process.env.CONTACT_TO_EMAIL || 'awesomeluxuryservices@gmail.com' }], subject: `Contact: ${payload.subject || 'No subject'}` }
+        ],
+        from: { email: process.env.FROM_EMAIL || 'no-reply@localhost', name: payload.name || 'Website Visitor' },
+        content: [{ type: 'text/plain', value: `Name: ${payload.name || ''}\nEmail: ${payload.email || ''}\nPhone: ${payload.phone || ''}\n\nMessage:\n${payload.message || ''}` }]
+      };
+
+      const resp = await fetch(SENDGRID_URL, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${process.env.SENDGRID_API_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      if (!resp.ok) {
+        const txt = await resp.text();
+        console.error('SendGrid error:', txt);
+        res.status(502).json({ error: 'SendGrid error', detail: txt });
+        return;
+      }
+
+      res.status(200).json({ ok: true, provider: 'sendgrid' });
+      return;
+    }
+
+    // No provider configured — log and return success (for local/dev)
+    res.status(200).json({ ok: true, note: 'Logged only (no provider configured)' });
+  } catch (err) {
+    console.error('api/send-email failed:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
 // Vercel / serverless endpoint to handle contact form submissions.
 // Behavior:
 // - Accepts POST JSON payload { name, email, phone, subject, message }
