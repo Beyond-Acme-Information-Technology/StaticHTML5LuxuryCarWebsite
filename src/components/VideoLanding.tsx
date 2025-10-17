@@ -35,7 +35,7 @@ export default function VideoLanding({ onSkip }: VideoLandingProps) {
       >
         {/* IMPORTANT: Replace this source with your actual video file path */}
         {/* For now using a placeholder. Upload your video to /public folder and update the path */}
-        <source src="/luxury-car-intro.mp4" type="video/mp4" />
+        <source src="build/luxury-car-intro.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
 

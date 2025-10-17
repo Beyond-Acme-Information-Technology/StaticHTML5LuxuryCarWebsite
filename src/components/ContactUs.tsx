@@ -24,7 +24,7 @@ export default function ContactUs() {
     // In a real application, this would send data to a server
     console.log('Contact form submitted:', formData);
     setSubmitted(true);
-    
+
     // Reset form after 3 seconds
     setTimeout(() => {
       setSubmitted(false);
@@ -55,7 +55,7 @@ export default function ContactUs() {
             {/* Contact Information */}
             <div>
               <h2 className="text-3xl mb-8 text-[#D4AF37]">Get In Touch</h2>
-              
+
               <div className="space-y-8">
                 {/* Phone */}
                 <div className="flex items-start gap-4 p-6 bg-gradient-to-br from-[#1a1a1a] to-black border border-[#D4AF37]/20">
@@ -114,7 +114,7 @@ export default function ContactUs() {
             {/* Contact Form */}
             <div>
               <h2 className="text-3xl mb-8 text-[#D4AF37]">Send Us A Message</h2>
-              
+
               <div className="bg-gradient-to-b from-[#1a1a1a] to-black border border-[#D4AF37]/20 p-8">
                 {submitted ? (
                   <div className="text-center py-12">
