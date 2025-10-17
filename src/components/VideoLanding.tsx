@@ -8,6 +8,7 @@ export default function VideoLanding({ onSkip }: VideoLandingProps) {
   const videoRef = useRef(null) as React.MutableRefObject<HTMLVideoElement | null>;
   const [isVideoEnded, setIsVideoEnded] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isMuted, setIsMuted] = useState(true);
 
   useEffect(() => {
     if (videoRef.current) {
@@ -44,7 +45,7 @@ export default function VideoLanding({ onSkip }: VideoLandingProps) {
       <video
         ref={videoRef}
         className="w-full h-full object-cover"
-        muted
+        muted={isMuted}
         playsInline
         onEnded={handleVideoEnd}
         onCanPlay={handleCanPlay}
@@ -65,6 +66,22 @@ export default function VideoLanding({ onSkip }: VideoLandingProps) {
           className="absolute top-8 right-8 px-6 py-3 bg-[#D4AF37] text-black hover:bg-[#B4941F] transition-all duration-300 z-50 tracking-wider"
         >
           SKIP VIDEO
+        </button>
+      )}
+
+      {/* Unmute control (user interaction required by many browsers) */}
+      {!isVideoEnded && isMuted && (
+        <button
+          onClick={() => {
+            if (videoRef.current) {
+              videoRef.current.muted = false;
+              videoRef.current.play().catch(() => {});
+              setIsMuted(false);
+            }
+          }}
+          className="absolute top-8 right-32 px-4 py-2 bg-white text-black hover:opacity-90 transition-all duration-200 z-50 tracking-wider"
+        >
+          UNMUTE
         </button>
       )}
 

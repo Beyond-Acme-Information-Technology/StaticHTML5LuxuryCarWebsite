@@ -1,1 +1,16 @@
-{"projectId":"prj_9LJSLJo6YCfAc6VYuz15oGMyMAoJ","orgId":"team_V2mCs0t2KxJQlo6Wf43ZgNFF","projectName":"static-html-5-luxury-car-website"}
+{
+  "projectId": "prj_JqFYT92nAqtKoNe2S7YZb4g2nBZ7",
+  "orgId": "team_V2mCs0t2KxJQlo6Wf43ZgNFF",
+  "projectName": "static-html-5-luxury-car-website",
+  "settings": {
+    "createdAt": 1760680873416,
+    "framework": "vite",
+    "devCommand": null,
+    "installCommand": "npm install vite --save-dev",
+    "buildCommand": "npm run build",
+    "outputDirectory": "build",
+    "rootDirectory": null,
+    "directoryListing": false,
+    "nodeVersion": "22.x"
+  }
+}

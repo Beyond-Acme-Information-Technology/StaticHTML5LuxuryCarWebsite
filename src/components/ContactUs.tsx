@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Mail, Phone, MapPin, Clock, Send } from 'lucide-react';
 
 export default function ContactUs() {
+  const API_BASE = (import.meta.env?.VITE_EMAIL_API_BASE as string) ?? '/api/send-email';
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -11,31 +12,46 @@ export default function ContactUs() {
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+  const [sendError, setSendError] = useState(null as any);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (e: any) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
-    // In a real application, this would send data to a server
-    console.log('Contact form submitted:', formData);
-    setSubmitted(true);
+    setIsSending(true);
+    setSendError(null);
 
-    // Reset form after 3 seconds
-    setTimeout(() => {
-      setSubmitted(false);
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        subject: '',
-        message: ''
+    try {
+      const res = await fetch(API_BASE, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
       });
-    }, 3000);
+
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || 'Failed to send message');
+      }
+
+      setSubmitted(true);
+
+      // Reset form after 3 seconds
+      setTimeout(() => {
+        setSubmitted(false);
+        setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+      }, 3000);
+    } catch (err: any) {
+      console.error('Send failed', err);
+      setSendError(err?.message || 'Send failed');
+    } finally {
+      setIsSending(false);
+    }
   };
 
   return (
@@ -126,6 +142,11 @@ export default function ContactUs() {
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit}>
+                    {sendError && (
+                      <div className="mb-4 p-3 bg-red-600 text-white rounded">
+                        <strong>Error:</strong> {sendError}
+                      </div>
+                    )}
                     <div className="space-y-6">
                       <div>
                         <label className="block text-gray-300 mb-2">Name *</label>
@@ -169,6 +190,7 @@ export default function ContactUs() {
                         <label className="block text-gray-300 mb-2">Subject *</label>
                         <select
                           name="subject"
+                          aria-label="Subject"
                           value={formData.subject}
                           onChange={handleChange}
                           required
@@ -198,10 +220,11 @@ export default function ContactUs() {
 
                       <button
                         type="submit"
-                        className="w-full px-8 py-4 bg-[#D4AF37] text-black hover:bg-[#B4941F] transition-all duration-300 tracking-wider flex items-center justify-center gap-2"
+                        disabled={isSending}
+                        className={`w-full px-8 py-4 ${isSending ? 'opacity-60 cursor-not-allowed' : 'bg-[#D4AF37] hover:bg-[#B4941F]'} text-black transition-all duration-300 tracking-wider flex items-center justify-center gap-2`}
                       >
                         <Send size={20} />
-                        SEND MESSAGE
+                        {isSending ? 'SENDING...' : 'SEND MESSAGE'}
                       </button>
                     </div>
                   </form>

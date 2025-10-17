@@ -57,5 +57,15 @@
     server: {
       port: 3000,
       open: true,
+      // proxy is only enabled during local development via VITE_DEV
+      ...(process.env.NODE_ENV === 'development' || process.env.VITE_DEV === 'true' ? {
+        proxy: {
+          '/api/send-email': {
+            target: 'http://localhost:5001',
+            changeOrigin: true,
+            rewrite: (p: string) => p.replace(/^\/api\/send-email/, '/api/send-email'),
+          },
+        },
+      } : {}),
     },
   });
