@@ -64,8 +64,8 @@ export default function ContactUs() {
                   </div>
                   <div>
                     <h3 className="text-xl mb-2 text-[#D4AF37]">Phone</h3>
-                    <p className="text-gray-300 mb-1">Main: +1 (555) 123-4567</p>
-                    <p className="text-gray-300 mb-1">Toll-Free: +1 (800) 555-9876</p>
+                    <p className="text-gray-300 mb-1">Main: +1 (415)619 8276 </p>
+                    <p className="text-gray-300 mb-1">Toll-Free: +1 (415)619 8276</p>
                     <p className="text-gray-400 text-sm">Available 24/7 for reservations</p>
                   </div>
                 </div>
@@ -77,8 +77,8 @@ export default function ContactUs() {
                   </div>
                   <div>
                     <h3 className="text-xl mb-2 text-[#D4AF37]">Email</h3>
-                    <p className="text-gray-300 mb-1">info@awesomecarservice.com</p>
-                    <p className="text-gray-300 mb-1">bookings@awesomecarservice.com</p>
+                    <p className="text-gray-300 mb-1">awesomeluxuryservices@gmail.com</p>
+                    <p className="text-gray-300 mb-1">awesomeluxuryservices@gmail.com</p>
                     <p className="text-gray-400 text-sm">We respond within 2 hours</p>
                   </div>
                 </div>
@@ -90,8 +90,8 @@ export default function ContactUs() {
                   </div>
                   <div>
                     <h3 className="text-xl mb-2 text-[#D4AF37]">Location</h3>
-                    <p className="text-gray-300 mb-1">123 Luxury Lane</p>
-                    <p className="text-gray-300 mb-1">Premium City, ST 12345</p>
+                    <p className="text-gray-300 mb-1">1505 Bayshore Hwy</p>
+                    <p className="text-gray-300 mb-1"> Suite A, Burlingame,CA 94010</p>
                     <p className="text-gray-300">United States</p>
                   </div>
                 </div>
@@ -136,7 +136,7 @@ export default function ContactUs() {
                           onChange={handleChange}
                           required
                           className="w-full bg-black border border-[#D4AF37]/30 px-4 py-3 text-white focus:border-[#D4AF37] focus:outline-none transition-colors"
-                          placeholder="Your name"
+                          placeholder="CEO Waqas Ali"
                         />
                       </div>
 
@@ -149,7 +149,7 @@ export default function ContactUs() {
                           onChange={handleChange}
                           required
                           className="w-full bg-black border border-[#D4AF37]/30 px-4 py-3 text-white focus:border-[#D4AF37] focus:outline-none transition-colors"
-                          placeholder="your@email.com"
+                          placeholder="awesomeluxuryservices@gmail.com"
                         />
                       </div>
 
@@ -161,7 +161,7 @@ export default function ContactUs() {
                           value={formData.phone}
                           onChange={handleChange}
                           className="w-full bg-black border border-[#D4AF37]/30 px-4 py-3 text-white focus:border-[#D4AF37] focus:outline-none transition-colors"
-                          placeholder="+1 (555) 123-4567"
+                          placeholder="+1 (415) 619-8276"
                         />
                       </div>
 
@@ -192,7 +192,7 @@ export default function ContactUs() {
                           required
                           rows={6}
                           className="w-full bg-black border border-[#D4AF37]/30 px-4 py-3 text-white focus:border-[#D4AF37] focus:outline-none transition-colors resize-none"
-                          placeholder="Your message..."
+                          placeholder="Thank You , CEO Waqas Ali."
                         />
                       </div>
 
@@ -223,7 +223,7 @@ export default function ContactUs() {
                 Interactive Map Location
               </p>
               <p className="text-gray-500 text-sm mt-2">
-                123 Luxury Lane, Premium City, ST 12345
+                1505 Bayshore Hwy, Suite A, Burlingame, CA 94010, United States
               </p>
             </div>
           </div>

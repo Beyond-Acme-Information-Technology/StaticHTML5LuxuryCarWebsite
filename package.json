@@ -53,6 +53,7 @@
       },
       "scripts": {
             "dev": "vite",
-            "build": "vite build"
+            "build": "vite build",
+            "preview:build-server": "node preview-server.js"
       }
 }

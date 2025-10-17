@@ -29,7 +29,7 @@ export default function BookOnline() {
     // In a real application, this would send data to a server
     console.log('Booking submitted:', formData);
     setSubmitted(true);
-    
+
     // Reset form after 3 seconds
     setTimeout(() => {
       setSubmitted(false);
@@ -99,7 +99,7 @@ export default function BookOnline() {
                         onChange={handleChange}
                         required
                         className="w-full bg-black border border-[#D4AF37]/30 px-4 py-3 text-white focus:border-[#D4AF37] focus:outline-none transition-colors"
-                        placeholder="John Doe"
+                        placeholder="Your Name Here"
                       />
                     </div>
                     <div>
@@ -114,7 +114,7 @@ export default function BookOnline() {
                         onChange={handleChange}
                         required
                         className="w-full bg-black border border-[#D4AF37]/30 px-4 py-3 text-white focus:border-[#D4AF37] focus:outline-none transition-colors"
-                        placeholder="john@example.com"
+                        placeholder="awesomeluxuryservices@gmail.com"
                       />
                     </div>
                   </div>
@@ -130,7 +130,7 @@ export default function BookOnline() {
                       onChange={handleChange}
                       required
                       className="w-full bg-black border border-[#D4AF37]/30 px-4 py-3 text-white focus:border-[#D4AF37] focus:outline-none transition-colors"
-                      placeholder="+1 (555) 123-4567"
+                      placeholder="+1 (415) 619-8276"
                     />
                   </div>
                 </div>

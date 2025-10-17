@@ -31,17 +31,17 @@ export default function Footer() {
               <div className="flex items-start">
                 <Phone size={18} className="mr-3 mt-1 text-[#D4AF37]" />
                 <div>
-                  <p>+1 (555) 123-4567</p>
+                  <p>+1 (415) 619-8276</p>
                   <p className="text-sm">Available 24/7</p>
                 </div>
               </div>
               <div className="flex items-start">
                 <Mail size={18} className="mr-3 mt-1 text-[#D4AF37]" />
-                <p>info@awesomecarservice.com</p>
+                <p>awesomeluxuryservices@gmail.com</p>
               </div>
               <div className="flex items-start">
                 <MapPin size={18} className="mr-3 mt-1 text-[#D4AF37]" />
-                <p>123 Luxury Lane, Premium City, ST 12345</p>
+                <p>1505 Bayshore Hwy. Suite A, Burlingame,CA USA 94010</p>
               </div>
             </div>
           </div>
@@ -53,7 +53,7 @@ export default function Footer() {
               <p>Monday - Friday: 24 Hours</p>
               <p>Saturday: 24 Hours</p>
               <p>Sunday: 24 Hours</p>
-              <p className="text-[#D4AF37] mt-4">We're always here for you</p>
+              <p className="text-[#D4AF37] mt-4">Beyond Safety & Luxury Services are our Best Policy</p>
             </div>
           </div>
         </div>

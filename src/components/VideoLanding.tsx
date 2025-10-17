@@ -5,13 +5,16 @@ interface VideoLandingProps {
 }
 
 export default function VideoLanding({ onSkip }: VideoLandingProps) {
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoRef = useRef(null) as React.MutableRefObject<HTMLVideoElement | null>;
   const [isVideoEnded, setIsVideoEnded] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (videoRef.current) {
-      videoRef.current.play().catch(err => {
+      videoRef.current.play().catch((err: unknown) => {
         console.log("Autoplay prevented:", err);
+        // if autoplay is prevented, still hide loading so user can enter site
+        setIsLoading(false);
       });
     }
   }, []);
@@ -23,6 +26,18 @@ export default function VideoLanding({ onSkip }: VideoLandingProps) {
     }, 1000);
   };
 
+  const handleCanPlay = () => {
+    setIsLoading(false);
+    // attempt to play once metadata/frames are available
+    videoRef.current?.play().catch(() => {});
+  };
+
+  const handleVideoError = () => {
+    // hide loading overlay on error so user can still enter site
+    console.error('Video failed to load');
+    setIsLoading(false);
+  };
+
   return (
     <div className="fixed inset-0 bg-black z-50">
       {/* Video Element */}
@@ -32,10 +47,14 @@ export default function VideoLanding({ onSkip }: VideoLandingProps) {
         muted
         playsInline
         onEnded={handleVideoEnd}
+        onCanPlay={handleCanPlay}
+        onError={handleVideoError}
       >
-        {/* IMPORTANT: Replace this source with your actual video file path */}
-        {/* For now using a placeholder. Upload your video to /public folder and update the path */}
-        <source src="build/luxury-car-intro.mp4" type="video/mp4" />
+    {/* IMPORTANT: Replace this source with your actual video file path */}
+    {/* Try root path first (works for vite preview and when assets are in `public/`),
+      then fall back to the historical `build/` path used by this repo. */}
+    <source src="/luxury-car-intro.mp4" type="video/mp4" />
+    <source src="/build/luxury-car-intro.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
 
@@ -43,14 +62,15 @@ export default function VideoLanding({ onSkip }: VideoLandingProps) {
       {!isVideoEnded && (
         <button
           onClick={onSkip}
-          className="absolute top-8 right-8 px-6 py-3 bg-[#D4AF37] text-black hover:bg-[#B4941F] transition-all duration-300 z-10 tracking-wider"
+          className="absolute top-8 right-8 px-6 py-3 bg-[#D4AF37] text-black hover:bg-[#B4941F] transition-all duration-300 z-50 tracking-wider"
         >
           SKIP VIDEO
         </button>
       )}
 
-      {/* Loading overlay if video fails */}
-      <div className="absolute inset-0 flex items-center justify-center bg-black">
+      {/* Loading overlay (shows while video is loading) */}
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black z-40">
         <div className="text-center">
           <div className="text-[#D4AF37] mb-4 tracking-widest">
             AWESOME LUXURY SERVICES GROUP
@@ -63,7 +83,8 @@ export default function VideoLanding({ onSkip }: VideoLandingProps) {
             ENTER SITE
           </button>
         </div>
-      </div>
+        </div>
+      )}
     </div>
   );
 }
