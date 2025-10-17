@@ -55,6 +55,7 @@
             "dev": "vite",
             "build": "vite build",
             "preview:build-server": "node preview-server.js",
-            "dev:email-proxy": "node local-email-proxy.js"
+            "dev:email-proxy": "node local-email-proxy.js",
+            "test:contact-proxy": "node scripts/test-contact-proxy.js"
       }
 }

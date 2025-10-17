@@ -8,13 +8,21 @@ export default function VideoLanding({ onSkip }: VideoLandingProps) {
   const videoRef = useRef(null) as React.MutableRefObject<HTMLVideoElement | null>;
   const [isVideoEnded, setIsVideoEnded] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [isMuted, setIsMuted] = useState(true);
+  // prefer unmuted by default; browsers may block autoplay with sound
+  const [isMuted, setIsMuted] = useState(false);
 
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.play().catch((err: unknown) => {
-        console.log("Autoplay prevented:", err);
-        // if autoplay is prevented, still hide loading so user can enter site
+        console.log('Autoplay with sound prevented or blocked by browser:', err);
+        // If autoplay with sound is blocked, mute and let user opt-in
+        try {
+          if (videoRef.current) {
+            videoRef.current.muted = true;
+          }
+        } catch (e) {}
+        setIsMuted(true);
+        // hide loading so user can proceed
         setIsLoading(false);
       });
     }
@@ -30,7 +38,14 @@ export default function VideoLanding({ onSkip }: VideoLandingProps) {
   const handleCanPlay = () => {
     setIsLoading(false);
     // attempt to play once metadata/frames are available
-    videoRef.current?.play().catch(() => {});
+    videoRef.current?.play().catch((err) => {
+      // if playing now fails (e.g., autoplay with sound blocked), fallback to muted
+      console.log('Play attempt on canplay failed:', err);
+      try {
+        if (videoRef.current) videoRef.current.muted = true;
+      } catch (e) {}
+      setIsMuted(true);
+    });
   };
 
   const handleVideoError = () => {
@@ -69,20 +84,44 @@ export default function VideoLanding({ onSkip }: VideoLandingProps) {
         </button>
       )}
 
-      {/* Unmute control (user interaction required by many browsers) */}
-      {!isVideoEnded && isMuted && (
-        <button
-          onClick={() => {
-            if (videoRef.current) {
-              videoRef.current.muted = false;
-              videoRef.current.play().catch(() => {});
-              setIsMuted(false);
-            }
-          }}
-          className="absolute top-8 right-32 px-4 py-2 bg-white text-black hover:opacity-90 transition-all duration-200 z-50 tracking-wider"
-        >
-          UNMUTE
-        </button>
+      {/* Mute / Unmute control */}
+      {!isVideoEnded && (
+        <div className="absolute top-6 right-24 flex flex-col items-end gap-3 z-50">
+          {isMuted ? (
+            <>
+              <button
+                onClick={() => {
+                  if (videoRef.current) {
+                    videoRef.current.muted = false;
+                    videoRef.current.play().catch(() => {});
+                    setIsMuted(false);
+                  }
+                }}
+                aria-label="Unmute video"
+                className="px-5 py-3 bg-[#D4AF37] text-black rounded-full shadow-lg transform hover:scale-105 transition duration-200 tracking-wider text-sm font-semibold animate-pulse"
+              >
+                UNMUTE
+              </button>
+
+              <div role="status" aria-live="polite" className="bg-black/60 text-white text-xs px-3 py-1 rounded">
+                Audio is muted by default in some browsers. Click UNMUTE to enable sound.
+              </div>
+            </>
+          ) : (
+            <button
+              onClick={() => {
+                if (videoRef.current) {
+                  videoRef.current.muted = true;
+                  setIsMuted(true);
+                }
+              }}
+              aria-label="Mute video"
+              className="px-3 py-2 bg-white text-black rounded shadow-sm hover:opacity-90 transition duration-200 tracking-wider text-sm font-medium"
+            >
+              MUTE
+            </button>
+          )}
+        </div>
       )}
 
       {/* Loading overlay (shows while video is loading) */}
