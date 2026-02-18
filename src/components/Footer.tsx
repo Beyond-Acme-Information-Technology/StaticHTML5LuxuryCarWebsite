@@ -31,7 +31,7 @@ export default function Footer() {
               <div className="flex items-start">
                 <Phone size={18} className="mr-3 mt-1 text-[#D4AF37]" />
                 <div>
-                  <p>+1 (415) 619-8276</p>
+                  <p>+1 (408) 805-4386</p>
                   <p className="text-sm">Available 24/7</p>
                 </div>
               </div>

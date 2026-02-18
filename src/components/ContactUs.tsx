@@ -14,6 +14,8 @@ export default function ContactUs() {
   const [submitted, setSubmitted] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [sendError, setSendError] = useState(null as any);
+  const [provider, setProvider] = useState<string | null>(null);
+  const [honeypot, setHoneypot] = useState('');
 
   const handleChange = (e: any) => {
     setFormData({
@@ -31,19 +33,30 @@ export default function ContactUs() {
       const res = await fetch(API_BASE, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, honeypot }),
       });
 
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || 'Failed to send message');
+      let json: any = null;
+      try {
+        json = await res.json();
+      } catch (err) {
+        // non-json response
       }
+
+      if (!res.ok) {
+        const text = (json && (json.error || json.details)) || (await res.text().catch(() => ''));
+        throw new Error(text || `Failed to send message (status ${res.status})`);
+      }
+
+      // show which provider was used when available
+      setProvider(json?.provider ?? null);
 
       setSubmitted(true);
 
       // Reset form after 3 seconds
       setTimeout(() => {
         setSubmitted(false);
+        setProvider(null);
         setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
       }, 3000);
     } catch (err: any) {
@@ -80,8 +93,8 @@ export default function ContactUs() {
                   </div>
                   <div>
                     <h3 className="text-xl mb-2 text-[#D4AF37]">Phone</h3>
-                    <p className="text-gray-300 mb-1">Main: +1 (415)619 8276 </p>
-                    <p className="text-gray-300 mb-1">Toll-Free: +1 (415)619 8276</p>
+                    <p className="text-gray-300 mb-1">Main: +1 (408) 805-4386</p>
+                    <p className="text-gray-300 mb-1">Toll-Free: +1 (408) 805-4386</p>
                     <p className="text-gray-400 text-sm">Available 24/7 for reservations</p>
                   </div>
                 </div>
@@ -139,9 +152,23 @@ export default function ContactUs() {
                     <p className="text-gray-300">
                       Thank you for contacting us. We'll respond to your inquiry as soon as possible.
                     </p>
+                    {provider && (
+                      <p className="text-gray-400 text-sm mt-2">Sent via {provider.toUpperCase()}</p>
+                    )}
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit}>
+                    {/* Honeypot field to deter bots (visually hidden) */}
+                    <input
+                      type="text"
+                      name="website"
+                      value={honeypot}
+                      onChange={(e) => setHoneypot(e.target.value)}
+                      autoComplete="off"
+                      tabIndex={-1}
+                      aria-hidden="true"
+                      style={{ position: 'absolute', left: '-9999px', top: 'auto', width: '1px', height: '1px', overflow: 'hidden' }}
+                    />
                     {sendError && (
                       <div className="mb-4 p-3 bg-red-600 text-white rounded">
                         <strong>Error:</strong> {sendError}
@@ -182,7 +209,7 @@ export default function ContactUs() {
                           value={formData.phone}
                           onChange={handleChange}
                           className="w-full bg-black border border-[#D4AF37]/30 px-4 py-3 text-white focus:border-[#D4AF37] focus:outline-none transition-colors"
-                          placeholder="+1 (415) 619-8276"
+                          placeholder="+1 (408) 805-4386"
                         />
                       </div>
 

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Calendar, Clock, MapPin, Car, User, Mail, Phone } from 'lucide-react';
 
 export default function BookOnline() {
+  const API_BASE = (import.meta.env?.VITE_EMAIL_API_BASE as string) ?? '/api/send-email';
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -16,6 +17,8 @@ export default function BookOnline() {
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData({
@@ -26,26 +29,56 @@ export default function BookOnline() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real application, this would send data to a server
-    console.log('Booking submitted:', formData);
-    setSubmitted(true);
+    setIsSending(true);
+    setSendError(null);
 
-    // Reset form after 3 seconds
-    setTimeout(() => {
-      setSubmitted(false);
-      setFormData({
-        fullName: '',
-        email: '',
-        phone: '',
-        date: '',
-        time: '',
-        pickupLocation: '',
-        dropoffLocation: '',
-        vehicleType: '',
-        passengers: '1',
-        specialRequests: ''
+    // Build a message body to send via the email endpoint
+    const payload = {
+      name: formData.fullName,
+      email: formData.email,
+      phone: formData.phone,
+      subject: 'Booking Request',
+      message: `Booking details:\n
+Name: ${formData.fullName}\nEmail: ${formData.email}\nPhone: ${formData.phone}\nDate: ${formData.date}\nTime: ${formData.time}\nPickup: ${formData.pickupLocation}\nDropoff: ${formData.dropoffLocation}\nVehicle: ${formData.vehicleType}\nPassengers: ${formData.passengers}\nSpecial Requests: ${formData.specialRequests || 'None'}`
+    };
+
+    fetch(API_BASE, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+      .then(async (res) => {
+        if (!res.ok) {
+          const txt = await res.text().catch(() => '');
+          throw new Error(txt || `Request failed: ${res.status}`);
+        }
+
+        setSubmitted(true);
+
+        // Reset form after 3 seconds
+        setTimeout(() => {
+          setSubmitted(false);
+          setFormData({
+            fullName: '',
+            email: '',
+            phone: '',
+            date: '',
+            time: '',
+            pickupLocation: '',
+            dropoffLocation: '',
+            vehicleType: '',
+            passengers: '1',
+            specialRequests: ''
+          });
+        }, 3000);
+      })
+      .catch((err: any) => {
+        console.error('Booking send failed', err);
+        setSendError(err?.message || 'Failed to submit booking request');
+      })
+      .finally(() => {
+        setIsSending(false);
       });
-    }, 3000);
   };
 
   const vehicleTypes = [
@@ -81,6 +114,11 @@ export default function BookOnline() {
               </div>
             ) : (
               <form onSubmit={handleSubmit}>
+                {sendError && (
+                  <div className="mb-4 p-3 bg-red-600 text-white rounded">
+                    <strong>Error:</strong> {sendError}
+                  </div>
+                )}
                 {/* Personal Information */}
                 <div className="mb-8">
                   <h2 className="text-2xl mb-6 text-[#D4AF37] border-b border-[#D4AF37]/20 pb-3">
@@ -130,10 +168,10 @@ export default function BookOnline() {
                       onChange={handleChange}
                       required
                       className="w-full bg-black border border-[#D4AF37]/30 px-4 py-3 text-white focus:border-[#D4AF37] focus:outline-none transition-colors"
-                      placeholder="+1 (415) 619-8276"
-                    />
+                      placeholder="+1 (408) 805-4386"
+                      />
+                    </div>
                   </div>
-                </div>
 
                 {/* Trip Details */}
                 <div className="mb-8">
@@ -266,17 +304,18 @@ export default function BookOnline() {
                 </div>
 
                 {/* Submit Button */}
-                <div className="text-center">
-                  <button
-                    type="submit"
-                    className="px-16 py-4 bg-[#D4AF37] text-black hover:bg-[#B4941F] transition-all duration-300 tracking-wider"
-                  >
-                    SUBMIT BOOKING REQUEST
-                  </button>
-                  <p className="text-gray-400 mt-4 text-sm">
-                    * Required fields. We'll contact you within 2 hours to confirm your reservation.
-                  </p>
-                </div>
+                  <div className="text-center">
+                    <button
+                      type="submit"
+                      disabled={isSending}
+                      className={`px-16 py-4 ${isSending ? 'opacity-60 cursor-not-allowed' : 'bg-[#D4AF37] hover:bg-[#B4941F]'} text-black transition-all duration-300 tracking-wider`}
+                    >
+                      {isSending ? 'SENDING...' : 'SUBMIT BOOKING REQUEST'}
+                    </button>
+                    <p className="text-gray-400 mt-4 text-sm">
+                      * Required fields. We'll contact you within 2 hours to confirm your reservation.
+                    </p>
+                  </div>
               </form>
             )}
           </div>

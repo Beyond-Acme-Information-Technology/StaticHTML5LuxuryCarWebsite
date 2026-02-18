@@ -17,6 +17,7 @@ export default function Navigation({ currentPage, onNavigate }: NavigationProps)
     { id: 'fleet', label: 'Fleet Gallery' },
     { id: 'book', label: 'Book Online' },
     { id: 'contact', label: 'Contact Us' },
+    { id: 'privacy', label: 'Privacy Policy' },
     { id: 'jobs', label: 'Jobs' },
     { id: 'login', label: 'Login' }
   ];

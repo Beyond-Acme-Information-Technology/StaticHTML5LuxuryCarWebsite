@@ -9,6 +9,7 @@ import BookOnline from './components/BookOnline';
 import ContactUs from './components/ContactUs';
 import Jobs from './components/Jobs';
 import LoginPortal from './components/LoginPortal';
+import PrivacyPolicy from './components/PrivacyPolicy';
 
 export default function App() {
   const [showVideo, setShowVideo] = useState(true);
@@ -49,6 +50,8 @@ export default function App() {
         return <ContactUs />;
       case 'jobs':
         return <Jobs />;
+      case 'privacy':
+        return <PrivacyPolicy onNavigate={handleNavigate} />;
       case 'login':
         return <LoginPortal />;
       default:
