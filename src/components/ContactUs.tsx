@@ -147,10 +147,11 @@ export default function ContactUs() {
                     {/* Honeypot field to deter bots (visually hidden) */}
                     <input
                       type="text"
-                      name="website"
+                      name="als_hp"
                       value={honeypot}
                       onChange={(e) => setHoneypot(e.target.value)}
                       autoComplete="off"
+                      data-lpignore="true"
                       tabIndex={-1}
                       aria-hidden="true"
                       style={{ position: 'absolute', left: '-9999px', top: 'auto', width: '1px', height: '1px', overflow: 'hidden' }}

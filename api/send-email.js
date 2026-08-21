@@ -27,7 +27,7 @@ function fromAddress() {
 }
 
 function isHoneypot(payload) {
-  return Boolean(payload?.honeypot || payload?.website);
+  return String(payload?.honeypot || '').trim().length > 0;
 }
 
 function buildBodies(payload) {
@@ -179,6 +179,9 @@ module.exports = async (req, res) => {
       });
     } catch (storeErr) {
       console.error('Lead store failed:', storeErr.message);
+      if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+        return res.status(502).json({ error: 'Could not store the request. Please call us.' });
+      }
     }
 
     const message = {

@@ -126,10 +126,11 @@ Special Requests: ${formData.specialRequests || 'None'}`,
               <form onSubmit={handleSubmit}>
                 <input
                   type="text"
-                  name="website"
+                  name="als_hp"
                   value={honeypot}
                   onChange={(e) => setHoneypot(e.target.value)}
                   autoComplete="off"
+                  data-lpignore="true"
                   tabIndex={-1}
                   aria-hidden="true"
                   className="absolute -left-[9999px] w-px h-px overflow-hidden"
