@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { Briefcase, Clock, MapPin, DollarSign, Upload } from 'lucide-react';
+import { Briefcase, Clock, MapPin, DollarSign } from 'lucide-react';
+import { COMPANY } from '@/config/company';
+import { sendLead } from '@/utils/sendLead';
 
 export default function Jobs() {
   const [selectedJob, setSelectedJob] = useState<number | null>(null);
@@ -12,12 +14,15 @@ export default function Jobs() {
     coverLetter: '',
     availability: ''
   });
+  const [honeypot, setHoneypot] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
 
   const jobOpenings = [
     {
       title: 'Professional Chauffeur',
-      location: 'Premium City, ST',
+      location: 'Burlingame, CA (San Francisco Bay Area)',
       type: 'Full-Time',
       salary: '$45,000 - $65,000',
       description: 'We are seeking experienced, professional chauffeurs to join our elite team. Must have a clean driving record and excellent customer service skills.',
@@ -32,7 +37,7 @@ export default function Jobs() {
     },
     {
       title: 'Operations Manager',
-      location: 'Premium City, ST',
+      location: 'Burlingame, CA (San Francisco Bay Area)',
       type: 'Full-Time',
       salary: '$60,000 - $80,000',
       description: 'Oversee daily operations of our luxury car service, including fleet management, scheduling, and quality assurance.',
@@ -47,7 +52,7 @@ export default function Jobs() {
     },
     {
       title: 'Customer Service Representative',
-      location: 'Premium City, ST (Remote options available)',
+      location: 'Burlingame, CA (hybrid / remote options available)',
       type: 'Full-Time',
       salary: '$35,000 - $45,000',
       description: 'Handle customer inquiries, bookings, and provide exceptional service to our distinguished clientele.',
@@ -62,7 +67,7 @@ export default function Jobs() {
     },
     {
       title: 'Fleet Maintenance Technician',
-      location: 'Premium City, ST',
+      location: 'Burlingame, CA (San Francisco Bay Area)',
       type: 'Full-Time',
       salary: '$40,000 - $55,000',
       description: 'Maintain and service our luxury vehicle fleet to the highest standards. Ensure all vehicles are in pristine condition.',
@@ -84,24 +89,50 @@ export default function Jobs() {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Application submitted:', formData);
-    setSubmitted(true);
-    
-    setTimeout(() => {
-      setSubmitted(false);
-      setSelectedJob(null);
-      setFormData({
-        fullName: '',
-        email: '',
-        phone: '',
-        position: '',
-        experience: '',
-        coverLetter: '',
-        availability: ''
+    setIsSending(true);
+    setSendError(null);
+    try {
+      await sendLead({
+        type: 'job',
+        name: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        position: formData.position,
+        subject: formData.position || 'Job application',
+        honeypot,
+        message: `Job application:
+Position: ${formData.position}
+Name: ${formData.fullName}
+Email: ${formData.email}
+Phone: ${formData.phone}
+Experience: ${formData.experience}
+Availability: ${formData.availability}
+Cover letter:
+${formData.coverLetter}
+
+Please reply to request a resume if it was not attached by email.`,
       });
-    }, 3000);
+      setSubmitted(true);
+      setTimeout(() => {
+        setSubmitted(false);
+        setSelectedJob(null);
+        setFormData({
+          fullName: '',
+          email: '',
+          phone: '',
+          position: '',
+          experience: '',
+          coverLetter: '',
+          availability: ''
+        });
+      }, 4000);
+    } catch (err: any) {
+      setSendError(err?.message || 'Failed to submit application');
+    } finally {
+      setIsSending(false);
+    }
   };
 
   return (
@@ -199,6 +230,21 @@ export default function Jobs() {
                 </div>
               ) : (
                 <form onSubmit={handleSubmit}>
+                  <input
+                    type="text"
+                    name="website"
+                    value={honeypot}
+                    onChange={(e) => setHoneypot(e.target.value)}
+                    autoComplete="off"
+                    tabIndex={-1}
+                    aria-hidden="true"
+                    className="absolute -left-[9999px] w-px h-px overflow-hidden"
+                  />
+                  {sendError && (
+                    <div className="mb-4 p-3 bg-red-600 text-white rounded">
+                      <strong>Error:</strong> {sendError}
+                    </div>
+                  )}
                   <div className="space-y-6">
                     <div>
                       <label className="block text-gray-300 mb-2">Full Name *</label>
@@ -236,7 +282,7 @@ export default function Jobs() {
                           onChange={handleChange}
                           required
                           className="w-full bg-black border border-[#D4AF37]/30 px-4 py-3 text-white focus:border-[#D4AF37] focus:outline-none transition-colors"
-                          placeholder="+1 (555) 123-4567"
+                          placeholder={COMPANY.phoneDisplay}
                         />
                       </div>
                     </div>
@@ -286,23 +332,9 @@ export default function Jobs() {
                       />
                     </div>
 
-                    <div>
-                      <label className="block text-gray-300 mb-2 flex items-center gap-2">
-                        <Upload size={18} className="text-[#D4AF37]" />
-                        Upload Resume *
-                      </label>
-                      <div className="border-2 border-dashed border-[#D4AF37]/30 hover:border-[#D4AF37] transition-colors p-8 text-center">
-                        <Upload size={32} className="text-[#D4AF37] mx-auto mb-2" />
-                        <p className="text-gray-400 mb-1">Click to upload or drag and drop</p>
-                        <p className="text-gray-500 text-sm">PDF, DOC, or DOCX (Max 5MB)</p>
-                        <input
-                          type="file"
-                          accept=".pdf,.doc,.docx"
-                          className="hidden"
-                          required
-                        />
-                      </div>
-                    </div>
+                    <p className="text-gray-400 text-sm">
+                      After you submit, email your resume to {COMPANY.email} with the same name and position in the subject line.
+                    </p>
 
                     <div className="flex gap-4">
                       <button
@@ -314,9 +346,10 @@ export default function Jobs() {
                       </button>
                       <button
                         type="submit"
-                        className="flex-1 px-8 py-4 bg-[#D4AF37] text-black hover:bg-[#B4941F] transition-all duration-300 tracking-wider"
+                        disabled={isSending}
+                        className={`flex-1 px-8 py-4 ${isSending ? 'opacity-60 cursor-not-allowed' : 'bg-[#D4AF37] hover:bg-[#B4941F]'} text-black transition-all duration-300 tracking-wider`}
                       >
-                        SUBMIT APPLICATION
+                        {isSending ? 'SENDING...' : 'SUBMIT APPLICATION'}
                       </button>
                     </div>
                   </div>

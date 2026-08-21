@@ -86,6 +86,29 @@ export default function HomePage({ onNavigate }: HomePageProps) {
         </div>
       </section>
 
+      <section className="py-12 px-4">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl mb-6 text-[#D4AF37]">Airport Transfers</h2>
+          <p className="text-gray-300 mb-8">
+            Meet &amp; greet and flight tracking for SFO, SJC, and Oakland.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <a
+              href="/sfo.html"
+              className="px-8 py-4 border-2 border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition-all duration-300 tracking-wider"
+            >
+              SFO TRANSFERS
+            </a>
+            <a
+              href="/sjc.html"
+              className="px-8 py-4 border-2 border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition-all duration-300 tracking-wider"
+            >
+              SJC TRANSFERS
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">

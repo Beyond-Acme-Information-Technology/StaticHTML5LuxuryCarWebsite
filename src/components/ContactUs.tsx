@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Mail, Phone, MapPin, Clock, Send } from 'lucide-react';
+import { COMPANY, CONTACT_SUBJECTS, FULL_ADDRESS, MAPS_EMBED_SRC } from '@/config/company';
+import { sendLead } from '@/utils/sendLead';
 
 export default function ContactUs() {
-  const API_BASE = (import.meta.env?.VITE_EMAIL_API_BASE as string) ?? '/api/send-email';
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -13,8 +14,7 @@ export default function ContactUs() {
 
   const [submitted, setSubmitted] = useState(false);
   const [isSending, setIsSending] = useState(false);
-  const [sendError, setSendError] = useState(null as any);
-  const [provider, setProvider] = useState<string | null>(null);
+  const [sendError, setSendError] = useState<string | null>(null);
   const [honeypot, setHoneypot] = useState('');
 
   const handleChange = (e: any) => {
@@ -30,35 +30,22 @@ export default function ContactUs() {
     setSendError(null);
 
     try {
-      const res = await fetch(API_BASE, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, honeypot }),
+      await sendLead({
+        type: 'contact',
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        subject: formData.subject,
+        message: formData.message,
+        honeypot,
       });
-
-      let json: any = null;
-      try {
-        json = await res.json();
-      } catch (err) {
-        // non-json response
-      }
-
-      if (!res.ok) {
-        const text = (json && (json.error || json.details)) || (await res.text().catch(() => ''));
-        throw new Error(text || `Failed to send message (status ${res.status})`);
-      }
-
-      // show which provider was used when available
-      setProvider(json?.provider ?? null);
 
       setSubmitted(true);
 
-      // Reset form after 3 seconds
       setTimeout(() => {
         setSubmitted(false);
-        setProvider(null);
         setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
-      }, 3000);
+      }, 4000);
     } catch (err: any) {
       console.error('Send failed', err);
       setSendError(err?.message || 'Send failed');
@@ -93,8 +80,9 @@ export default function ContactUs() {
                   </div>
                   <div>
                     <h3 className="text-xl mb-2 text-[#D4AF37]">Phone</h3>
-                    <p className="text-gray-300 mb-1">Main: +1 (408) 805-4386</p>
-                    <p className="text-gray-300 mb-1">Toll-Free: +1 (408) 805-4386</p>
+                    <p className="text-gray-300 mb-1">
+                      <a href={`tel:${COMPANY.phoneTel}`} className="hover:text-[#D4AF37]">{COMPANY.phoneDisplay}</a>
+                    </p>
                     <p className="text-gray-400 text-sm">Available 24/7 for reservations</p>
                   </div>
                 </div>
@@ -106,9 +94,10 @@ export default function ContactUs() {
                   </div>
                   <div>
                     <h3 className="text-xl mb-2 text-[#D4AF37]">Email</h3>
-                    <p className="text-gray-300 mb-1">awesomeluxuryservices@gmail.com</p>
-                    <p className="text-gray-300 mb-1">awesomeluxuryservices@gmail.com</p>
-                    <p className="text-gray-400 text-sm">We respond within 2 hours</p>
+                    <p className="text-gray-300 mb-1">
+                      <a href={`mailto:${COMPANY.email}`} className="hover:text-[#D4AF37]">{COMPANY.email}</a>
+                    </p>
+                    <p className="text-gray-400 text-sm">We respond within 2 hours during office hours</p>
                   </div>
                 </div>
 
@@ -119,9 +108,9 @@ export default function ContactUs() {
                   </div>
                   <div>
                     <h3 className="text-xl mb-2 text-[#D4AF37]">Location</h3>
-                    <p className="text-gray-300 mb-1">1505 Bayshore Hwy</p>
-                    <p className="text-gray-300 mb-1"> Suite A, Burlingame,CA 94010</p>
-                    <p className="text-gray-300">United States</p>
+                    <p className="text-gray-300 mb-1">{COMPANY.addressLine1}</p>
+                    <p className="text-gray-300 mb-1">{COMPANY.addressLine2}</p>
+                    <p className="text-gray-300">{COMPANY.country}</p>
                   </div>
                 </div>
 
@@ -132,8 +121,8 @@ export default function ContactUs() {
                   </div>
                   <div>
                     <h3 className="text-xl mb-2 text-[#D4AF37]">Business Hours</h3>
-                    <p className="text-gray-300 mb-1">Monday - Sunday: 24 Hours</p>
-                    <p className="text-gray-400 text-sm">Office Hours: 8:00 AM - 8:00 PM EST</p>
+                    <p className="text-gray-300 mb-1">{COMPANY.serviceHours}</p>
+                    <p className="text-gray-400 text-sm">{COMPANY.officeHours}</p>
                     <p className="text-gray-400 text-sm">After-hours support available</p>
                   </div>
                 </div>
@@ -150,11 +139,8 @@ export default function ContactUs() {
                     <div className="text-[#D4AF37] text-6xl mb-6">✓</div>
                     <h3 className="text-2xl mb-4 text-[#D4AF37]">Message Sent!</h3>
                     <p className="text-gray-300">
-                      Thank you for contacting us. We'll respond to your inquiry as soon as possible.
+                      Thank you for contacting us. We will respond as soon as possible.
                     </p>
-                    {provider && (
-                      <p className="text-gray-400 text-sm mt-2">Sent via {provider.toUpperCase()}</p>
-                    )}
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit}>
@@ -184,7 +170,7 @@ export default function ContactUs() {
                           onChange={handleChange}
                           required
                           className="w-full bg-black border border-[#D4AF37]/30 px-4 py-3 text-white focus:border-[#D4AF37] focus:outline-none transition-colors"
-                          placeholder="CEO Waqas Ali"
+                          placeholder="Your name"
                         />
                       </div>
 
@@ -197,7 +183,7 @@ export default function ContactUs() {
                           onChange={handleChange}
                           required
                           className="w-full bg-black border border-[#D4AF37]/30 px-4 py-3 text-white focus:border-[#D4AF37] focus:outline-none transition-colors"
-                          placeholder="awesomeluxuryservices@gmail.com"
+                          placeholder="you@example.com"
                         />
                       </div>
 
@@ -209,7 +195,7 @@ export default function ContactUs() {
                           value={formData.phone}
                           onChange={handleChange}
                           className="w-full bg-black border border-[#D4AF37]/30 px-4 py-3 text-white focus:border-[#D4AF37] focus:outline-none transition-colors"
-                          placeholder="+1 (408) 805-4386"
+                          placeholder={COMPANY.phoneDisplay}
                         />
                       </div>
 
@@ -224,11 +210,11 @@ export default function ContactUs() {
                           className="w-full bg-black border border-[#D4AF37]/30 px-4 py-3 text-white focus:border-[#D4AF37] focus:outline-none transition-colors"
                         >
                           <option value="">Select a subject</option>
-                          <option value="booking">Booking Inquiry</option>
-                          <option value="general">General Question</option>
-                          <option value="corporate">Corporate Services</option>
-                          <option value="feedback">Feedback</option>
-                          <option value="other">Other</option>
+                          {CONTACT_SUBJECTS.map((item) => (
+                            <option key={item.id} value={item.id}>
+                              {item.label}
+                            </option>
+                          ))}
                         </select>
                       </div>
 
@@ -241,7 +227,7 @@ export default function ContactUs() {
                           required
                           rows={6}
                           className="w-full bg-black border border-[#D4AF37]/30 px-4 py-3 text-white focus:border-[#D4AF37] focus:outline-none transition-colors resize-none"
-                          placeholder="Thank You , CEO Waqas Ali."
+                          placeholder="How can we help?"
                         />
                       </div>
 
@@ -262,20 +248,17 @@ export default function ContactUs() {
         </div>
       </section>
 
-      {/* Map Section (Placeholder) */}
       <section className="px-4 pb-20">
         <div className="max-w-7xl mx-auto">
-          <div className="bg-[#1a1a1a] border border-[#D4AF37]/20 h-96 flex items-center justify-center">
-            <div className="text-center">
-              <MapPin size={48} className="text-[#D4AF37] mx-auto mb-4" />
-              <p className="text-gray-400">
-                {/* IMPORTANT: Replace with actual Google Maps embed or map component */}
-                Interactive Map Location
-              </p>
-              <p className="text-gray-500 text-sm mt-2">
-                1505 Bayshore Hwy, Suite A, Burlingame, CA 94010, United States
-              </p>
-            </div>
+          <div className="bg-[#1a1a1a] border border-[#D4AF37]/20 overflow-hidden">
+            <iframe
+              title={`${COMPANY.shortName} office map`}
+              src={MAPS_EMBED_SRC}
+              className="w-full h-96 border-0"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+            <p className="text-gray-400 text-sm text-center py-3">{FULL_ADDRESS}</p>
           </div>
         </div>
       </section>

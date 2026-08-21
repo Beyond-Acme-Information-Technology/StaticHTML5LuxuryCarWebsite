@@ -1,18 +1,41 @@
 const http = require('http');
-const url = require('url');
+const fs = require('fs');
 const path = require('path');
+const url = require('url');
+
+function loadEnvFile(fileName) {
+  try {
+    const raw = fs.readFileSync(path.join(process.cwd(), fileName), 'utf8');
+    raw.split(/\r?\n/).forEach((line) => {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) return;
+      const eq = trimmed.indexOf('=');
+      if (eq < 1) return;
+      const key = trimmed.slice(0, eq).trim();
+      const value = trimmed.slice(eq + 1).trim().replace(/^['"]|['"]$/g, '');
+      if (!process.env[key]) process.env[key] = value;
+    });
+  } catch {
+    // optional
+  }
+}
+
+loadEnvFile('.env.local');
+loadEnvFile('.env');
+
+const sendEmail = require('./api/send-email');
+const leads = require('./api/leads');
+const health = require('./api/health');
 
 const PORT = process.env.EMAIL_PROXY_PORT || 5001;
-const SENDGRID_URL = 'https://api.sendgrid.com/v3/mail/send';
 
 function parseJSONBody(req) {
   return new Promise((resolve, reject) => {
     let data = '';
-    req.on('data', chunk => (data += chunk));
+    req.on('data', (chunk) => (data += chunk));
     req.on('end', () => {
       try {
-        const json = data ? JSON.parse(data) : {};
-        resolve(json);
+        resolve(data ? JSON.parse(data) : {});
       } catch (err) {
         reject(err);
       }
@@ -21,74 +44,50 @@ function parseJSONBody(req) {
   });
 }
 
-async function sendViaSendGrid(payload) {
-  const body = {
-    personalizations: [
-      {
-        to: [{ email: process.env.CONTACT_TO_EMAIL || 'awesomeluxuryservices@gmail.com' }],
-        subject: `Contact form: ${payload.subject || 'No subject'}`,
-      },
-    ],
-    from: { email: process.env.FROM_EMAIL || 'no-reply@localhost', name: payload.name || 'Website Visitor' },
-    content: [
-      {
-        type: 'text/plain',
-        value: `Name: ${payload.name || ''}\nEmail: ${payload.email || ''}\nPhone: ${payload.phone || ''}\n\nMessage:\n${payload.message || ''}`,
-      },
-    ],
-  };
-
-  const res = await fetch(SENDGRID_URL, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${process.env.SENDGRID_API_KEY}`,
-      'Content-Type': 'application/json',
+function vercelRes(res) {
+  return {
+    setHeader(key, value) {
+      res.setHeader(key, value);
     },
-    body: JSON.stringify(body),
-  });
-
-  if (!res.ok) {
-    const txt = await res.text();
-    throw new Error(`SendGrid error ${res.status}: ${txt}`);
-  }
+    status(code) {
+      return {
+        json(obj) {
+          if (res.headersSent) return;
+          res.writeHead(code, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(obj));
+        },
+      };
+    },
+  };
 }
 
 const server = http.createServer(async (req, res) => {
   const parsed = url.parse(req.url || '', true);
-  if (req.method === 'POST' && parsed.pathname === '/api/send-email') {
-    try {
+  const proxyRes = vercelRes(res);
+
+  try {
+    if (parsed.pathname === '/api/send-email' && req.method === 'POST') {
       const payload = await parseJSONBody(req);
-      console.log('Local email proxy received payload:', payload);
-
-      if (process.env.SENDGRID_API_KEY) {
-        try {
-          await sendViaSendGrid(payload);
-          res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ ok: true, provider: 'sendgrid' }));
-          return;
-        } catch (err) {
-          console.error('SendGrid send failed:', err);
-          res.writeHead(502, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: String(err) }));
-          return;
-        }
-      }
-
-      // No provider configured: log and return success note
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ ok: true, note: 'Logged only (no provider configured)' }));
-    } catch (err) {
-      console.error('Proxy error:', err);
-      res.writeHead(400, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'Invalid JSON' }));
+      await sendEmail({ method: 'POST', body: payload, headers: req.headers }, proxyRes);
+      return;
     }
-    return;
-  }
 
-  // Simple health
-  if (req.method === 'GET' && parsed.pathname === '/health') {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ ok: true }));
+    if (parsed.pathname === '/api/leads') {
+      const body = req.method === 'GET' ? {} : await parseJSONBody(req);
+      await leads({ method: req.method, body, headers: req.headers }, proxyRes);
+      return;
+    }
+
+    if (parsed.pathname === '/api/health' || parsed.pathname === '/health') {
+      await health({ method: req.method, body: {}, headers: req.headers }, proxyRes);
+      return;
+    }
+  } catch (err) {
+    console.error('Proxy error:', err);
+    if (!res.headersSent) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Invalid request' }));
+    }
     return;
   }
 
@@ -97,6 +96,6 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`Local email proxy listening at http://localhost:${PORT}/api/send-email`);
-  console.log('Set SENDGRID_API_KEY, FROM_EMAIL and CONTACT_TO_EMAIL env vars to enable real sending.');
+  console.log(`Local API proxy listening at http://localhost:${PORT}/api/send-email`);
+  console.log('Set BREVO_API_KEY or BREVO_SMTP_KEY, FROM_EMAIL, CONTACT_TO_EMAIL, and STAFF_INBOX_TOKEN.');
 });

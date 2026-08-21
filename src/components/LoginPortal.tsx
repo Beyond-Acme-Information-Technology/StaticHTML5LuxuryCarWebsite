@@ -1,7 +1,12 @@
 import { useState } from 'react';
 import { Lock, Mail, User, AlertCircle } from 'lucide-react';
+import { COMPANY } from '@/config/company';
 
-export default function LoginPortal() {
+interface LoginPortalProps {
+  onNavigate?: (page: string) => void;
+}
+
+export default function LoginPortal({ onNavigate }: LoginPortalProps) {
   const [activeTab, setActiveTab] = useState<'client' | 'staff'>('client');
   const [loginData, setLoginData] = useState({
     email: '',
@@ -16,12 +21,25 @@ export default function LoginPortal() {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Placeholder - In production, this would authenticate with a backend
-    console.log('Login attempted:', { ...loginData, type: activeTab });
+    if (activeTab === 'staff') {
+      try {
+        const res = await fetch('/api/leads', {
+          headers: { Authorization: `Bearer ${loginData.password}` },
+        });
+        if (!res.ok) {
+          setShowMessage(true);
+          return;
+        }
+        sessionStorage.setItem('staffToken', loginData.password);
+        onNavigate?.('staff');
+      } catch {
+        setShowMessage(true);
+      }
+      return;
+    }
     setShowMessage(true);
-    
     setTimeout(() => {
       setShowMessage(false);
       setLoginData({ email: '', password: '' });
@@ -72,17 +90,32 @@ export default function LoginPortal() {
             {showMessage ? (
               <div className="text-center py-12">
                 <AlertCircle size={48} className="text-[#D4AF37] mx-auto mb-6" />
-                <h3 className="text-2xl mb-4 text-[#D4AF37]">Portal Coming Soon</h3>
+                <h3 className="text-2xl mb-4 text-[#D4AF37]">
+                  {activeTab === 'staff' ? 'Access denied' : 'Portal Coming Soon'}
+                </h3>
                 <p className="text-gray-300 mb-2">
-                  The {activeTab === 'client' ? 'client' : 'staff'} portal is currently under development.
+                  {activeTab === 'staff'
+                    ? 'Staff access was denied. Check the access token, or contact the administrator.'
+                    : `The ${activeTab === 'client' ? 'client' : 'staff'} portal is currently under development.`}
                 </p>
                 <p className="text-gray-400">
                   Please contact us directly for account access or assistance.
                 </p>
                 <div className="mt-6 pt-6 border-t border-[#D4AF37]/20">
                   <p className="text-gray-400 mb-2">Need help?</p>
-                  <p className="text-[#D4AF37]">Call: +1 (555) 123-4567</p>
-                  <p className="text-[#D4AF37]">Email: info@awesomecarservice.com</p>
+                  <p className="text-[#D4AF37]">
+                    <a href={`tel:${COMPANY.phoneTel}`}>{COMPANY.phoneDisplay}</a>
+                  </p>
+                  <p className="text-[#D4AF37]">
+                    <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setShowMessage(false)}
+                    className="mt-4 text-[#D4AF37] hover:text-[#B4941F]"
+                  >
+                    Try again
+                  </button>
                 </div>
               </div>
             ) : (
@@ -93,6 +126,7 @@ export default function LoginPortal() {
 
                 <form onSubmit={handleSubmit}>
                   <div className="space-y-6">
+                    {activeTab === 'client' && (
                     <div>
                       <label className="block text-gray-300 mb-2 flex items-center gap-2">
                         <Mail size={18} className="text-[#D4AF37]" />
@@ -103,16 +137,17 @@ export default function LoginPortal() {
                         name="email"
                         value={loginData.email}
                         onChange={handleChange}
-                        required
+                        required={activeTab === 'client'}
                         className="w-full bg-black border border-[#D4AF37]/30 px-4 py-3 text-white focus:border-[#D4AF37] focus:outline-none transition-colors"
                         placeholder="your@email.com"
                       />
                     </div>
+                    )}
 
                     <div>
                       <label className="block text-gray-300 mb-2 flex items-center gap-2">
                         <Lock size={18} className="text-[#D4AF37]" />
-                        Password
+                        {activeTab === 'staff' ? 'Access token' : 'Password'}
                       </label>
                       <input
                         type="password"
@@ -121,10 +156,11 @@ export default function LoginPortal() {
                         onChange={handleChange}
                         required
                         className="w-full bg-black border border-[#D4AF37]/30 px-4 py-3 text-white focus:border-[#D4AF37] focus:outline-none transition-colors"
-                        placeholder="••••••••"
+                        placeholder={activeTab === 'staff' ? 'Staff access token' : '••••••••'}
                       />
                     </div>
 
+                    {activeTab === 'client' && (
                     <div className="flex items-center justify-between text-sm">
                       <label className="flex items-center gap-2 text-gray-400 cursor-pointer">
                         <input
@@ -140,6 +176,7 @@ export default function LoginPortal() {
                         Forgot password?
                       </button>
                     </div>
+                    )}
 
                     <button
                       type="submit"
@@ -156,7 +193,11 @@ export default function LoginPortal() {
                       ? "Don't have an account?" 
                       : "Need staff access?"}
                   </p>
-                  <button className="text-[#D4AF37] hover:text-[#B4941F] transition-colors">
+                  <button
+                    type="button"
+                    onClick={() => onNavigate?.('contact')}
+                    className="text-[#D4AF37] hover:text-[#B4941F] transition-colors"
+                  >
                     {activeTab === 'client' 
                       ? 'Create Client Account' 
                       : 'Contact Administrator'}
@@ -193,23 +234,19 @@ export default function LoginPortal() {
                 </div>
               ) : (
                 <div className="bg-gradient-to-br from-[#1a1a1a] to-black border border-[#D4AF37]/20 p-6">
-                  <h3 className="text-[#D4AF37] mb-3">Staff Portal Features</h3>
+                  <h3 className="text-[#D4AF37] mb-3">Staff inbox</h3>
                   <ul className="space-y-2 text-gray-400 text-sm">
                     <li className="flex items-start gap-2">
                       <span className="text-[#D4AF37]">•</span>
-                      <span>View and manage daily schedules</span>
+                      <span>See booking, contact, and job requests</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-[#D4AF37]">•</span>
-                      <span>Access client information and preferences</span>
+                      <span>Mark requests new, contacted, confirmed, or closed</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-[#D4AF37]">•</span>
-                      <span>Submit time sheets and reports</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-[#D4AF37]">•</span>
-                      <span>Training materials and resources</span>
+                      <span>Reply to guests from your sales inbox</span>
                     </li>
                   </ul>
                 </div>

@@ -60,7 +60,7 @@ export default function PrivacyPolicy({ onNavigate }: PrivacyPolicyProps) {
         <section className="mb-6">
           <h2 className="text-2xl text-[#D4AF37] mb-2">5. California Privacy Rights (CCPA/CPRA Notice)</h2>
           <p className="text-gray-300">
-            If you are a California resident, you have rights under the CCPA/CPRA, including the right to know what personal information we collect, the right to request deletion, correction, opt-out of sale/sharing, and the right to non-discrimination for exercising privacy rights. To exercise your rights, contact us at awesomeluxuryservices@gmail.com or (408) 689-8909. We will verify your identity before processing requests.
+            If you are a California resident, you have rights under the CCPA/CPRA, including the right to know what personal information we collect, the right to request deletion, correction, opt-out of sale/sharing, and the right to non-discrimination for exercising privacy rights. To exercise your rights, contact us at awesomeluxuryservices@gmail.com or +1 (408) 805-4386. We will verify your identity before processing requests.
           </p>
         </section>
 
@@ -108,11 +108,17 @@ export default function PrivacyPolicy({ onNavigate }: PrivacyPolicyProps) {
             1505 Bayshore Hwy. Suite A<br />
             Burlingame, CA 94010, USA<br />
             Email: <a href="mailto:awesomeluxuryservices@gmail.com" className="text-[#D4AF37]">awesomeluxuryservices@gmail.com</a><br />
-            Phone: <a href="tel:+14086898909" className="text-[#D4AF37]">(408) 689-8909</a>
+            Phone: <a href="tel:+14088054386" className="text-[#D4AF37]">+1 (408) 805-4386</a>
           </address>
         </section>
 
-        <div className="mt-8">
+        <div className="mt-8 flex gap-4">
+          <button
+            onClick={() => onNavigate?.('terms')}
+            className="px-6 py-3 border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition-all duration-200"
+          >
+            Terms of Service
+          </button>
           <button
             onClick={() => onNavigate?.('home')}
             className="px-6 py-3 bg-[#D4AF37] text-black hover:bg-[#B4941F] transition-all duration-200"
