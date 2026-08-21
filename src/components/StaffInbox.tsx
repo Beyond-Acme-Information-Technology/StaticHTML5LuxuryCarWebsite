@@ -56,7 +56,7 @@ export default function StaffInbox({ onNavigate }: StaffInboxProps) {
 
   async function setStatus(id: string, status: string) {
     if (!token) return;
-      const res = await fetch(apiUrl('/api/leads'), {
+    const res = await fetch(apiUrl('/api/leads'), {
       method: 'PATCH',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -82,7 +82,8 @@ export default function StaffInbox({ onNavigate }: StaffInboxProps) {
             <div>
               <h1 className="text-4xl md:text-5xl mb-3 text-[#D4AF37]">Staff inbox</h1>
               <p className="text-gray-300">
-                Booking, contact, and job requests. Email still goes to {COMPANY.email}.
+                {loading ? 'Loading requests…' : `${leads.length} stored request${leads.length === 1 ? '' : 's'}.`}
+                {' '}Email still goes to {COMPANY.email}.
               </p>
             </div>
             <div className="flex gap-3">
@@ -101,54 +102,92 @@ export default function StaffInbox({ onNavigate }: StaffInboxProps) {
             </div>
           </div>
 
-          {loading && <p className="text-gray-400">Loading requests…</p>}
           {error && (
             <div className="mb-6 p-4 border border-red-500 text-red-200">{error}</div>
           )}
 
           {!loading && !error && leads.length === 0 && (
-            <p className="text-gray-400">
-              No stored requests yet. Submit a Contact, Booking, or Jobs form — it will appear
-              here and still email {COMPANY.email}.
+            <p className="text-gray-300 text-lg">
+              No requests yet. Submit a Contact, Booking, or Jobs form on the website, then click Refresh.
             </p>
           )}
 
-          <div className="space-y-6">
+          <div className="space-y-8">
             {leads.map((lead) => (
               <article
                 key={lead.id}
-                className="bg-gradient-to-b from-[#1a1a1a] to-black border border-[#D4AF37]/20 p-6"
+                className="bg-[#111] border border-[#D4AF37] p-6 md:p-8"
               >
-                <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
-                  <div>
-                    <p className="text-[#D4AF37] mb-1">
-                      {lead.type} · {lead.subject}
-                    </p>
-                    <h2 className="text-xl">{lead.name || 'Unknown guest'}</h2>
-                    <p className="text-gray-400 text-sm">
-                      {lead.createdAt ? new Date(lead.createdAt).toLocaleString() : ''}
-                    </p>
-                  </div>
-                  <select
-                    aria-label="Request status"
-                    value={lead.status}
-                    onChange={(e) => setStatus(lead.id, e.target.value)}
-                    className="bg-black border border-[#D4AF37]/30 px-3 py-2 text-white"
-                  >
-                    {STATUSES.map((status) => (
-                      <option key={status} value={status}>
-                        {status}
-                      </option>
-                    ))}
-                  </select>
+                <div className="flex flex-wrap items-center gap-3 mb-6">
+                  <span className="px-3 py-1 bg-[#D4AF37] text-black text-sm tracking-wider uppercase">
+                    {lead.type || 'request'}
+                  </span>
+                  <span className="text-white text-lg">{lead.subject || 'No subject'}</span>
                 </div>
-                <p className="text-gray-300 mb-2">
-                  <a className="text-[#D4AF37]" href={`mailto:${lead.email}`}>{lead.email}</a>
-                  {lead.phone ? ` · ${lead.phone}` : ''}
-                </p>
-                <pre className="text-gray-400 whitespace-pre-wrap font-sans text-sm leading-relaxed">
-                  {lead.message}
-                </pre>
+
+                <dl className="grid gap-4 md:grid-cols-2 text-base mb-6">
+                  <div>
+                    <dt className="text-[#D4AF37] text-sm mb-1">Guest</dt>
+                    <dd className="text-white text-xl">{lead.name || 'Unknown guest'}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-[#D4AF37] text-sm mb-1">Received</dt>
+                    <dd className="text-white">
+                      {lead.createdAt ? new Date(lead.createdAt).toLocaleString() : '—'}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-[#D4AF37] text-sm mb-1">Email</dt>
+                    <dd>
+                      {lead.email ? (
+                        <a className="text-white underline" href={`mailto:${lead.email}`}>
+                          {lead.email}
+                        </a>
+                      ) : (
+                        '—'
+                      )}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-[#D4AF37] text-sm mb-1">Phone</dt>
+                    <dd>
+                      {lead.phone ? (
+                        <a className="text-white underline" href={`tel:${lead.phone}`}>
+                          {lead.phone}
+                        </a>
+                      ) : (
+                        '—'
+                      )}
+                    </dd>
+                  </div>
+                </dl>
+
+                <div className="mb-6">
+                  <p className="text-[#D4AF37] text-sm mb-2">Message</p>
+                  <p className="text-white whitespace-pre-wrap leading-relaxed">
+                    {lead.message || 'No message body'}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-[#D4AF37] text-sm mb-2">Status</p>
+                  <div className="flex flex-wrap gap-2">
+                    {STATUSES.map((status) => (
+                      <button
+                        key={status}
+                        type="button"
+                        onClick={() => setStatus(lead.id, status)}
+                        className={`px-4 py-2 border capitalize ${
+                          lead.status === status
+                            ? 'bg-[#D4AF37] text-black border-[#D4AF37]'
+                            : 'border-[#D4AF37]/50 text-white hover:border-[#D4AF37]'
+                        }`}
+                      >
+                        {status}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </article>
             ))}
           </div>
