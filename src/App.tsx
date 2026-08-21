@@ -12,8 +12,9 @@ import LoginPortal from './components/LoginPortal';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfService from './components/TermsOfService';
 import StaffInbox from './components/StaffInbox';
+import ClientPortal from './components/ClientPortal';
 
-const VALID_PAGES = ['home', 'services', 'fleet', 'book', 'contact', 'jobs', 'privacy', 'login', 'terms', 'staff'] as const;
+const VALID_PAGES = ['home', 'services', 'fleet', 'book', 'contact', 'jobs', 'privacy', 'login', 'terms', 'staff', 'account'] as const;
 type PageId = (typeof VALID_PAGES)[number];
 
 function pageFromHash(): PageId {
@@ -81,6 +82,8 @@ export default function App() {
         return <LoginPortal onNavigate={handleNavigate} />;
       case 'staff':
         return <StaffInbox onNavigate={handleNavigate} />;
+      case 'account':
+        return <ClientPortal onNavigate={handleNavigate} />;
       default:
         return <HomePage onNavigate={handleNavigate} />;
     }

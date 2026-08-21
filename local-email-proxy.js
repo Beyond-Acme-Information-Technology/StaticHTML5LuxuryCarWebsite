@@ -26,6 +26,8 @@ loadEnvFile('.env');
 const sendEmail = require('./api/send-email');
 const leads = require('./api/leads');
 const health = require('./api/health');
+const clientAuth = require('./api/client-auth');
+const clientLeads = require('./api/client-leads');
 
 const PORT = process.env.EMAIL_PROXY_PORT || 5001;
 
@@ -80,6 +82,17 @@ const server = http.createServer(async (req, res) => {
 
     if (parsed.pathname === '/api/health' || parsed.pathname === '/health') {
       await health({ method: req.method, body: {}, headers: req.headers }, proxyRes);
+      return;
+    }
+
+    if (parsed.pathname === '/api/client-auth' && req.method === 'POST') {
+      const payload = await parseJSONBody(req);
+      await clientAuth({ method: 'POST', body: payload, headers: req.headers }, proxyRes);
+      return;
+    }
+
+    if (parsed.pathname === '/api/client-leads' && req.method === 'GET') {
+      await clientLeads({ method: 'GET', body: {}, headers: req.headers }, proxyRes);
       return;
     }
   } catch (err) {

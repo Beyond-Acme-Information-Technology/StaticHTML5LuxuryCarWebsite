@@ -21,3 +21,33 @@ alter table leads enable row level security;
 
 revoke all on table leads from anon, authenticated;
 grant all on table leads to service_role;
+
+create index if not exists leads_email_idx on leads (lower(email));
+
+create table if not exists client_otps (
+  id uuid primary key default gen_random_uuid(),
+  email text not null,
+  code_hash text not null,
+  expires_at timestamptz not null,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists client_otps_email_idx on client_otps (email, created_at desc);
+
+create table if not exists client_sessions (
+  id uuid primary key default gen_random_uuid(),
+  token_hash text not null unique,
+  email text not null,
+  expires_at timestamptz not null,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists client_sessions_token_idx on client_sessions (token_hash);
+
+alter table client_otps enable row level security;
+alter table client_sessions enable row level security;
+
+revoke all on table client_otps from anon, authenticated;
+revoke all on table client_sessions from anon, authenticated;
+grant all on table client_otps to service_role;
+grant all on table client_sessions to service_role;
