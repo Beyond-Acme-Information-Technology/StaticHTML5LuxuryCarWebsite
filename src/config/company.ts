@@ -2,7 +2,7 @@ export const COMPANY = {
   legalName: 'Awesome Luxury Services Group LLC',
   shortName: 'Awesome Luxury Services',
   tagline: 'Where luxury meets legacy',
-  domain: 'https://awesomeservicesgroups.com',
+  domain: 'https://www.awesomeservicesgroups.com',
   email: 'awesomeluxuryservices@gmail.com',
   phoneDisplay: '+1 (408) 805-4386',
   phoneTel: '+14088054386',

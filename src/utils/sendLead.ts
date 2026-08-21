@@ -1,3 +1,5 @@
+import { apiUrl } from './siteUrl';
+
 export type LeadPayload = {
   name: string;
   email: string;
@@ -10,7 +12,7 @@ export type LeadPayload = {
 };
 
 export async function sendLead(payload: LeadPayload): Promise<{ ok: boolean; provider?: string }> {
-  const API_BASE = (import.meta.env?.VITE_EMAIL_API_BASE as string) ?? '/api/send-email';
+  const API_BASE = (import.meta.env?.VITE_EMAIL_API_BASE as string) ?? apiUrl('/api/send-email');
   const res = await fetch(API_BASE, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Lock, Mail, User, AlertCircle } from 'lucide-react';
 import { COMPANY } from '@/config/company';
+import { apiUrl, normalizeStaffToken } from '@/utils/siteUrl';
 
 interface LoginPortalProps {
   onNavigate?: (page: string) => void;
@@ -25,14 +26,15 @@ export default function LoginPortal({ onNavigate }: LoginPortalProps) {
     e.preventDefault();
     if (activeTab === 'staff') {
       try {
-        const res = await fetch('/api/leads', {
-          headers: { Authorization: `Bearer ${loginData.password}` },
+        const token = normalizeStaffToken(loginData.password);
+        const res = await fetch(apiUrl('/api/leads'), {
+          headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) {
           setShowMessage(true);
           return;
         }
-        sessionStorage.setItem('staffToken', loginData.password);
+        sessionStorage.setItem('staffToken', token);
         onNavigate?.('staff');
       } catch {
         setShowMessage(true);
@@ -156,8 +158,14 @@ export default function LoginPortal({ onNavigate }: LoginPortalProps) {
                         onChange={handleChange}
                         required
                         className="w-full bg-black border border-[#D4AF37]/30 px-4 py-3 text-white focus:border-[#D4AF37] focus:outline-none transition-colors"
-                        placeholder={activeTab === 'staff' ? 'Staff access token' : '••••••••'}
+                        placeholder={activeTab === 'staff' ? 'Paste token value only' : '••••••••'}
                       />
+                      {activeTab === 'staff' && (
+                        <p className="text-gray-500 text-sm mt-2">
+                          Paste only the token value from Vercel, not the STAFF_INBOX_TOKEN= label.
+                          Use the www site: www.awesomeservicesgroups.com/#/login
+                        </p>
+                      )}
                     </div>
 
                     {activeTab === 'client' && (

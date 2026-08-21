@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { COMPANY } from '@/config/company';
+import { apiUrl } from '@/utils/siteUrl';
 
 type Lead = {
   id: string;
@@ -34,7 +35,7 @@ export default function StaffInbox({ onNavigate }: StaffInboxProps) {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/leads', {
+      const res = await fetch(apiUrl('/api/leads'), {
         headers: { Authorization: `Bearer ${token}` },
       });
       const json = await res.json().catch(() => ({}));
@@ -55,7 +56,7 @@ export default function StaffInbox({ onNavigate }: StaffInboxProps) {
 
   async function setStatus(id: string, status: string) {
     if (!token) return;
-    const res = await fetch('/api/leads', {
+      const res = await fetch(apiUrl('/api/leads'), {
       method: 'PATCH',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -107,8 +108,8 @@ export default function StaffInbox({ onNavigate }: StaffInboxProps) {
 
           {!loading && !error && leads.length === 0 && (
             <p className="text-gray-400">
-              No stored requests yet. Submit a test booking. On Vercel, add Supabase or the list
-              will reset between deploys; email still arrives.
+              No stored requests yet. Submit a Contact, Booking, or Jobs form — it will appear
+              here and still email {COMPANY.email}.
             </p>
           )}
 

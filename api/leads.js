@@ -1,18 +1,27 @@
 const { listLeads, updateLeadStatus } = require('../lib/leads-store');
+const { applyCors } = require('../lib/cors');
 
 function readToken(req) {
   const header = req.headers.authorization || req.headers.Authorization || '';
   return String(header).replace(/^Bearer\s+/i, '').trim();
 }
 
+function expectedToken() {
+  return String(process.env.STAFF_INBOX_TOKEN || '')
+    .trim()
+    .replace(/^["']|["']$/g, '');
+}
+
 function authorized(req) {
-  const expected = process.env.STAFF_INBOX_TOKEN;
+  const expected = expectedToken();
   if (!expected) return false;
   return readToken(req) === expected;
 }
 
 module.exports = async (req, res) => {
-  if (!process.env.STAFF_INBOX_TOKEN) {
+  if (applyCors(req, res)) return;
+
+  if (!expectedToken()) {
     return res.status(503).json({ error: 'Staff inbox is not configured' });
   }
 
