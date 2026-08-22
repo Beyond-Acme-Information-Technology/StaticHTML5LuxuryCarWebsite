@@ -81,7 +81,7 @@ export default function TripQuote({
   return (
     <div className="space-y-6">
       <div>
-        <label className="block text-gray-300 mb-2">Passenger type *</label>
+        <label className="block text-gray-300 mb-2">Who is riding? *</label>
         <select
           value={rideCategory}
           onChange={(e) => {
@@ -114,8 +114,9 @@ export default function TripQuote({
             onChange({ pickup: e.target.value });
           }}
           required
+          autoComplete="street-address"
           className="w-full bg-black border border-[#D4AF37]/30 px-4 py-3 text-white focus:border-[#D4AF37] focus:outline-none"
-          placeholder="Street address, hotel, or terminal"
+          placeholder="Hotel, home address, or airport terminal"
         />
       </div>
       {stops.map((stop, index) => (
@@ -150,11 +151,11 @@ export default function TripQuote({
           value={stopDraft}
           onChange={(e) => setStopDraft(e.target.value)}
           className="flex-1 bg-black border border-[#D4AF37]/30 px-4 py-3 text-white focus:border-[#D4AF37] focus:outline-none"
-          placeholder="Add a stop (optional)"
+          placeholder="Add a stop on the way (optional)"
         />
         <button
           type="button"
-          className="px-4 border border-[#D4AF37] text-[#D4AF37]"
+          className="px-4 border border-[#D4AF37] text-[#D4AF37] whitespace-nowrap"
           onClick={() => {
             if (!stopDraft.trim()) return;
             onQuote(null);
@@ -177,8 +178,9 @@ export default function TripQuote({
             onChange({ dropoff: e.target.value });
           }}
           required
+          autoComplete="off"
           className="w-full bg-black border border-[#D4AF37]/30 px-4 py-3 text-white focus:border-[#D4AF37] focus:outline-none"
-          placeholder="Destination address"
+          placeholder="Where should we drop you off?"
         />
       </div>
       <button
@@ -189,6 +191,9 @@ export default function TripQuote({
       >
         {busy ? 'CALCULATING MILES…' : 'CALCULATE MILES AND PRICE'}
       </button>
+      {!quote && !busy && (
+        <p className="text-gray-500 text-sm">This looks up driving miles and shows a price before you send the request.</p>
+      )}
       {error && <p className="text-red-300">{error}</p>}
       {quote && (
         <div className="border border-[#D4AF37] p-5">

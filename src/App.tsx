@@ -13,9 +13,10 @@ import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfService from './components/TermsOfService';
 import StaffInbox from './components/StaffInbox';
 import ClientPortal from './components/ClientPortal';
+import PaidThankYou from './components/PaidThankYou';
 import { CLIENT_AUTH_EVENT, hasClientSession } from './utils/clientSession';
 
-const VALID_PAGES = ['home', 'services', 'fleet', 'book', 'contact', 'jobs', 'privacy', 'login', 'terms', 'staff', 'account'] as const;
+const VALID_PAGES = ['home', 'services', 'fleet', 'book', 'contact', 'jobs', 'privacy', 'login', 'terms', 'staff', 'account', 'paid'] as const;
 type PageId = (typeof VALID_PAGES)[number];
 
 function pageFromHash(): PageId {
@@ -29,11 +30,13 @@ export default function App() {
   const [clientSignedIn, setClientSignedIn] = useState(false);
 
   useEffect(() => {
+    const initialPage = pageFromHash();
     const hasSeenVideo = sessionStorage.getItem('hasSeenVideo');
-    if (hasSeenVideo) {
+    const skipIntro = Boolean(window.location.hash) && initialPage !== 'home';
+    if (hasSeenVideo || skipIntro) {
       setShowVideo(false);
     }
-    setCurrentPage(pageFromHash());
+    setCurrentPage(initialPage);
     setClientSignedIn(hasClientSession());
 
     const onHashChange = () => setCurrentPage(pageFromHash());
@@ -94,6 +97,8 @@ export default function App() {
         return <StaffInbox onNavigate={handleNavigate} />;
       case 'account':
         return <ClientPortal onNavigate={handleNavigate} />;
+      case 'paid':
+        return <PaidThankYou onNavigate={handleNavigate} />;
       default:
         return <HomePage onNavigate={handleNavigate} />;
     }

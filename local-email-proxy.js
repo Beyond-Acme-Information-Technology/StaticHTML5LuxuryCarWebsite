@@ -46,6 +46,15 @@ function parseJSONBody(req) {
   });
 }
 
+function parseRawBody(req) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    req.on('data', (chunk) => chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)));
+    req.on('end', () => resolve(Buffer.concat(chunks)));
+    req.on('error', reject);
+  });
+}
+
 function vercelRes(res) {
   return {
     setHeader(key, value) {
@@ -94,6 +103,13 @@ const server = http.createServer(async (req, res) => {
     if ((parsed.pathname === '/api/client-leads') && (req.method === 'GET' || req.method === 'PATCH')) {
       const body = req.method === 'GET' ? {} : await parseJSONBody(req);
       await clientLeads({ method: req.method, body, headers: req.headers }, proxyRes);
+      return;
+    }
+
+    if (parsed.pathname === '/api/stripe-webhook' && req.method === 'POST') {
+      const raw = await parseRawBody(req);
+      const handler = require('./api/stripe-webhook');
+      await handler({ method: 'POST', body: raw, headers: req.headers }, proxyRes);
       return;
     }
 

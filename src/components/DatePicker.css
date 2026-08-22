@@ -1,0 +1,71 @@
+.als-daypicker.rdp {
+  --rdp-cell-size: 2.45rem;
+  --rdp-accent-color: #d4af37;
+  --rdp-background-color: #1a1a1a;
+  --rdp-accent-color-dark: #d4af37;
+  --rdp-outline: 2px solid #d4af37;
+  --rdp-outline-selected: 2px solid #d4af37;
+  margin: 0;
+  color: #fff;
+}
+
+.als-daypicker .rdp-caption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.als-daypicker .rdp-caption_label,
+.als-daypicker .rdp-dropdown_month,
+.als-daypicker .rdp-dropdown_year {
+  color: #fff;
+}
+
+.als-daypicker .rdp-dropdown {
+  background: #111;
+  color: #fff;
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  padding: 0.35rem 0.5rem;
+  margin-right: 0.35rem;
+}
+
+.als-daypicker .rdp-nav_button {
+  color: #d4af37;
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  width: 1.85rem;
+  height: 1.85rem;
+}
+
+.als-daypicker .rdp-head_cell {
+  color: #d4af37;
+  font-weight: 500;
+  font-size: 0.75rem;
+}
+
+.als-daypicker .rdp-day {
+  color: #fff;
+  border-radius: 0;
+}
+
+.als-daypicker .rdp-day:hover:not(.rdp-day_disabled):not(.rdp-day_selected) {
+  background: rgba(212, 175, 55, 0.18);
+}
+
+.als-daypicker .rdp-day_today:not(.rdp-day_selected) {
+  border: 1px solid #d4af37;
+  color: #d4af37;
+}
+
+.als-daypicker .rdp-day_selected,
+.als-daypicker .rdp-day_selected:hover {
+  background: #d4af37;
+  color: #000;
+  font-weight: 600;
+}
+
+.als-daypicker .rdp-day_disabled {
+  color: #555;
+  opacity: 0.45;
+}

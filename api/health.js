@@ -18,6 +18,7 @@ module.exports = async (req, res) => {
         (process.env.BREVO_API_KEY || process.env.BREVO_SMTP_KEY)
     ),
     stripeConfigured: Boolean(process.env.STRIPE_SECRET_KEY),
+    stripeWebhookConfigured: Boolean(process.env.STRIPE_WEBHOOK_SECRET),
     leadsStore: hasSupabase() ? 'supabase' : storeKind(),
   });
 };

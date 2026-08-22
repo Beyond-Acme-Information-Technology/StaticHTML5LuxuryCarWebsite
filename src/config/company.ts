@@ -24,14 +24,16 @@ export const FULL_ADDRESS = `${COMPANY.addressLine1}, ${COMPANY.addressLine2}, $
 
 export const MAPS_EMBED_SRC = `https://maps.google.com/maps?q=${encodeURIComponent(COMPANY.mapsQuery)}&z=15&output=embed`;
 
-export const VEHICLE_TYPES = [
-  'Mercedes-Benz S-Class',
-  'BMW 7 Series',
-  'Audi A8',
-  'Range Rover Autobiography',
-  'Tesla Model S',
-  'Cadillac Escalade ESV',
+export const VEHICLE_OPTIONS = [
+  { name: 'Mercedes-Benz S-Class', kind: 'Executive sedan', seats: 3 },
+  { name: 'BMW 7 Series', kind: 'Luxury sedan', seats: 3 },
+  { name: 'Audi A8', kind: 'Premium sedan', seats: 3 },
+  { name: 'Range Rover Autobiography', kind: 'Luxury SUV', seats: 6 },
+  { name: 'Tesla Model S', kind: 'Electric luxury', seats: 4 },
+  { name: 'Cadillac Escalade ESV', kind: 'Executive SUV', seats: 7 },
 ] as const;
+
+export const VEHICLE_TYPES = VEHICLE_OPTIONS.map((vehicle) => vehicle.name);
 
 export const RIDE_CATEGORIES = [
   { id: 'regular', label: 'Regular / luxury chauffeur' },
@@ -40,11 +42,11 @@ export const RIDE_CATEGORIES = [
 ] as const;
 
 export const SERVICE_TYPES = [
-  { id: 'airport', label: 'Airport Transfer' },
-  { id: 'point-to-point', label: 'Point to Point' },
-  { id: 'hourly', label: 'Hourly / As Directed' },
-  { id: 'event', label: 'Wedding / Special Event' },
-  { id: 'corporate', label: 'Corporate Travel' },
+  { id: 'airport', label: 'Airport Transfer', hint: 'SFO, SJC, or Oakland' },
+  { id: 'point-to-point', label: 'Point to Point', hint: 'Address to address' },
+  { id: 'hourly', label: 'Hourly / As Directed', hint: 'Chauffeur for the day' },
+  { id: 'event', label: 'Wedding / Event', hint: 'Ceremonies and parties' },
+  { id: 'corporate', label: 'Corporate Travel', hint: 'Meetings and executives' },
 ] as const;
 
 export const CONTACT_SUBJECTS = [
@@ -56,7 +58,19 @@ export const CONTACT_SUBJECTS = [
 ] as const;
 
 export const AIRPORTS = [
-  { id: 'SFO', label: 'San Francisco International (SFO)' },
-  { id: 'SJC', label: 'San Jose Mineta (SJC)' },
-  { id: 'OAK', label: 'Oakland International (OAK)' },
+  {
+    id: 'SFO',
+    label: 'San Francisco International (SFO)',
+    address: 'San Francisco International Airport (SFO), San Francisco, CA 94128',
+  },
+  {
+    id: 'SJC',
+    label: 'San Jose Mineta (SJC)',
+    address: 'Norman Y. Mineta San Jose International Airport (SJC), San Jose, CA 95110',
+  },
+  {
+    id: 'OAK',
+    label: 'Oakland International (OAK)',
+    address: 'Oakland International Airport (OAK), Oakland, CA 94621',
+  },
 ] as const;
