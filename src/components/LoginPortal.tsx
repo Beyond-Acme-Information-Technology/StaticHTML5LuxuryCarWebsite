@@ -9,7 +9,7 @@ interface LoginPortalProps {
 }
 
 export default function LoginPortal({ onNavigate }: LoginPortalProps) {
-  const [activeTab, setActiveTab] = useState<'client' | 'staff'>('client');
+  const [activeTab, setActiveTab] = useState<'client' | 'staff' | 'driver'>('client');
   const [loginData, setLoginData] = useState({
     email: '',
     password: '',
@@ -51,6 +51,26 @@ export default function LoginPortal({ onNavigate }: LoginPortalProps) {
         onNavigate?.('staff');
       } catch {
         setStaffDenied(true);
+      }
+      return;
+    }
+
+    if (activeTab === 'driver') {
+      setBusy(true);
+      try {
+        const res = await fetch(apiUrl('/api/driver-auth'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: loginData.email, pin: loginData.password }),
+        });
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(json.error || 'Could not sign in');
+        sessionStorage.setItem('driverToken', json.token);
+        onNavigate?.('driver');
+      } catch (err: any) {
+        setError(err.message || 'Chauffeur login failed');
+      } finally {
+        setBusy(false);
       }
       return;
     }
@@ -134,7 +154,22 @@ export default function LoginPortal({ onNavigate }: LoginPortalProps) {
               }`}
             >
               <Lock size={20} />
-              Staff Portal
+              Staff
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab('driver');
+                setStaffDenied(false);
+                setError(null);
+              }}
+              className={`flex-1 py-4 flex items-center justify-center gap-2 transition-all duration-300 ${
+                activeTab === 'driver'
+                  ? 'bg-[#D4AF37] text-black'
+                  : 'bg-black text-gray-400 hover:text-[#D4AF37]'
+              }`}
+            >
+              Chauffeur
             </button>
           </div>
 
@@ -160,7 +195,7 @@ export default function LoginPortal({ onNavigate }: LoginPortalProps) {
             ) : (
               <>
                 <h2 className="text-2xl mb-6 text-[#D4AF37]">
-                  {activeTab === 'client' ? 'Client Login' : 'Staff Login'}
+                  {activeTab === 'client' ? 'Client Login' : activeTab === 'driver' ? 'Chauffeur Login' : 'Staff Login'}
                 </h2>
 
                 <form onSubmit={handleSubmit}>
@@ -218,6 +253,39 @@ export default function LoginPortal({ onNavigate }: LoginPortalProps) {
                       </div>
                     )}
 
+                    {activeTab === 'driver' && (
+                      <>
+                        <div>
+                          <label className="block text-gray-300 mb-2">Phone on file</label>
+                          <input
+                            type="tel"
+                            name="email"
+                            value={loginData.email}
+                            onChange={handleChange}
+                            required
+                            className="w-full bg-black border border-[#D4AF37]/30 px-4 py-3 text-white focus:border-[#D4AF37] focus:outline-none"
+                            placeholder="(408) 555-0100"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-gray-300 mb-2 flex items-center gap-2">
+                            <Lock size={18} className="text-[#D4AF37]" />
+                            PIN
+                          </label>
+                          <input
+                            type="password"
+                            name="password"
+                            inputMode="numeric"
+                            value={loginData.password}
+                            onChange={handleChange}
+                            required
+                            className="w-full bg-black border border-[#D4AF37]/30 px-4 py-3 text-white focus:border-[#D4AF37] focus:outline-none"
+                            placeholder="4–6 digit PIN"
+                          />
+                        </div>
+                      </>
+                    )}
+
                     {activeTab === 'staff' && (
                       <div>
                         <label className="block text-gray-300 mb-2 flex items-center gap-2">
@@ -245,7 +313,11 @@ export default function LoginPortal({ onNavigate }: LoginPortalProps) {
                     >
                       {activeTab === 'staff'
                         ? 'LOGIN'
-                        : clientStep === 'email'
+                        : activeTab === 'driver'
+                          ? busy
+                            ? 'SIGNING IN…'
+                            : 'OPEN TRIPS'
+                          : clientStep === 'email'
                           ? busy
                             ? 'SENDING CODE…'
                             : 'EMAIL ME A CODE'
@@ -258,7 +330,7 @@ export default function LoginPortal({ onNavigate }: LoginPortalProps) {
 
                 <div className="mt-8 pt-8 border-t border-[#D4AF37]/20 text-center">
                   <p className="text-gray-400 mb-4">
-                    {activeTab === 'client' ? 'No request on file yet?' : 'Need staff access?'}
+                    {activeTab === 'client' ? 'No request on file yet?' : activeTab === 'driver' ? 'Need a PIN?' : 'Need staff access?'}
                   </p>
                   <button
                     type="button"
@@ -280,6 +352,15 @@ export default function LoginPortal({ onNavigate }: LoginPortalProps) {
                   <li>Use the same email you put on Contact, Book, or Jobs.</li>
                   <li>We email a one-time code. No password to remember.</li>
                   <li>You will see status of each request: new, contacted, confirmed, or closed.</li>
+                </ul>
+              </>
+            ) : activeTab === 'driver' ? (
+              <>
+                <h3 className="text-[#D4AF37] mb-3">Chauffeur</h3>
+                <ul className="space-y-2 text-gray-400 text-sm">
+                  <li>Staff add your name, phone, vehicle, and PIN in the inbox Chauffeurs tab.</li>
+                  <li>Accept the trip, then On my Way, On Location, On Board, Drop off.</li>
+                  <li>GPS and luggage photo are captured in this phone browser.</li>
                 </ul>
               </>
             ) : (

@@ -1,0 +1,441 @@
+[
+  {
+    "label": "1505 Bayshore Hwy Suite A, Burlingame, CA 94010",
+    "hint": "Our office",
+    "aliases": [
+      "awesome luxury",
+      "office",
+      "burlingame office"
+    ]
+  },
+  {
+    "label": "San Francisco International Airport (SFO), San Francisco, CA 94128",
+    "hint": "SFO",
+    "aliases": [
+      "sfo",
+      "san francisco airport"
+    ]
+  },
+  {
+    "label": "SFO International Terminal, San Francisco, CA 94128",
+    "hint": "Arrivals",
+    "aliases": [
+      "sfo international"
+    ]
+  },
+  {
+    "label": "SFO Terminal 1, San Francisco, CA 94128",
+    "hint": "Harvey Milk",
+    "aliases": [
+      "sfo t1",
+      "terminal 1 sfo"
+    ]
+  },
+  {
+    "label": "SFO Terminal 2, San Francisco, CA 94128",
+    "aliases": [
+      "sfo t2"
+    ]
+  },
+  {
+    "label": "SFO Terminal 3, San Francisco, CA 94128",
+    "aliases": [
+      "sfo t3"
+    ]
+  },
+  {
+    "label": "Norman Y. Mineta San Jose International Airport (SJC), San Jose, CA 95110",
+    "hint": "SJC",
+    "aliases": [
+      "sjc",
+      "san jose airport"
+    ]
+  },
+  {
+    "label": "SJC Terminal A, San Jose, CA 95110",
+    "aliases": [
+      "sjc a"
+    ]
+  },
+  {
+    "label": "SJC Terminal B, San Jose, CA 95110",
+    "aliases": [
+      "sjc b"
+    ]
+  },
+  {
+    "label": "Oakland International Airport (OAK), Oakland, CA 94621",
+    "hint": "OAK",
+    "aliases": [
+      "oak",
+      "oakland airport"
+    ]
+  },
+  {
+    "label": "Los Angeles International Airport (LAX), Los Angeles, CA 90045",
+    "hint": "LAX",
+    "aliases": [
+      "lax"
+    ]
+  },
+  {
+    "label": "San Diego International Airport (SAN), San Diego, CA 92101",
+    "hint": "SAN",
+    "aliases": [
+      "san diego airport",
+      "lindbergh"
+    ]
+  },
+  {
+    "label": "Sacramento International Airport (SMF), Sacramento, CA 95837",
+    "hint": "SMF",
+    "aliases": [
+      "smf"
+    ]
+  },
+  {
+    "label": "Hollywood Burbank Airport (BUR), Burbank, CA 91505",
+    "aliases": [
+      "bur",
+      "burbank airport"
+    ]
+  },
+  {
+    "label": "John Wayne Airport (SNA), Santa Ana, CA 92707",
+    "aliases": [
+      "sna",
+      "orange county airport"
+    ]
+  },
+  {
+    "label": "Ontario International Airport (ONT), Ontario, CA 91761",
+    "aliases": [
+      "ont"
+    ]
+  },
+  {
+    "label": "Union Square, San Francisco, CA 94102",
+    "aliases": [
+      "union square"
+    ]
+  },
+  {
+    "label": "Fisherman's Wharf, San Francisco, CA 94133",
+    "aliases": [
+      "fishermans wharf",
+      "pier 39"
+    ]
+  },
+  {
+    "label": "Salesforce Tower, 415 Mission St, San Francisco, CA 94105",
+    "aliases": [
+      "salesforce"
+    ]
+  },
+  {
+    "label": "Moscone Center, 747 Howard St, San Francisco, CA 94103",
+    "aliases": [
+      "moscone"
+    ]
+  },
+  {
+    "label": "Chase Center, 1 Warriors Way, San Francisco, CA 94158",
+    "aliases": [
+      "chase center",
+      "warriors"
+    ]
+  },
+  {
+    "label": "Oracle Park, 24 Willie Mays Plaza, San Francisco, CA 94107",
+    "aliases": [
+      "oracle park",
+      "giants"
+    ]
+  },
+  {
+    "label": "Golden Gate Bridge Welcome Center, San Francisco, CA 94129",
+    "aliases": [
+      "golden gate"
+    ]
+  },
+  {
+    "label": "Fairmont San Francisco, 950 Mason St, San Francisco, CA 94108",
+    "aliases": [
+      "fairmont"
+    ]
+  },
+  {
+    "label": "St. Regis San Francisco, 125 3rd St, San Francisco, CA 94103",
+    "aliases": [
+      "st regis"
+    ]
+  },
+  {
+    "label": "Four Seasons Hotel San Francisco, 757 Market St, San Francisco, CA 94103",
+    "aliases": [
+      "four seasons sf"
+    ]
+  },
+  {
+    "label": "The Ritz-Carlton San Francisco, 600 Stockton St, San Francisco, CA 94108",
+    "aliases": [
+      "ritz san francisco"
+    ]
+  },
+  {
+    "label": "Palace Hotel, 2 New Montgomery St, San Francisco, CA 94105",
+    "aliases": [
+      "palace hotel"
+    ]
+  },
+  {
+    "label": "Westin San Francisco Airport, 1 Old Bayshore Hwy, Millbrae, CA 94030",
+    "aliases": [
+      "westin sfo",
+      "westin millbrae"
+    ]
+  },
+  {
+    "label": "Hyatt Regency San Francisco Airport, 1333 Old Bayshore Hwy, Burlingame, CA 94010",
+    "aliases": [
+      "hyatt burlingame",
+      "hyatt sfo"
+    ]
+  },
+  {
+    "label": "Hilton San Francisco Airport Bayfront, 600 Airport Blvd, Burlingame, CA 94010",
+    "aliases": [
+      "hilton burlingame"
+    ]
+  },
+  {
+    "label": "The Ritz-Carlton Half Moon Bay, 1 Miramontes Point Rd, Half Moon Bay, CA 94019",
+    "aliases": [
+      "ritz half moon bay"
+    ]
+  },
+  {
+    "label": "Stanford University, 450 Serra Mall, Stanford, CA 94305",
+    "aliases": [
+      "stanford"
+    ]
+  },
+  {
+    "label": "Stanford Hospital, 300 Pasteur Dr, Stanford, CA 94305",
+    "aliases": [
+      "stanford hospital"
+    ]
+  },
+  {
+    "label": "UCSF Medical Center, 505 Parnassus Ave, San Francisco, CA 94143",
+    "aliases": [
+      "ucsf"
+    ]
+  },
+  {
+    "label": "Kaiser Permanente San Francisco, 2425 Geary Blvd, San Francisco, CA 94115",
+    "aliases": [
+      "kaiser sf"
+    ]
+  },
+  {
+    "label": "California Pacific Medical Center, 1101 Van Ness Ave, San Francisco, CA 94109",
+    "aliases": [
+      "cpmc"
+    ]
+  },
+  {
+    "label": "El Camino Hospital, 2500 Grant Rd, Mountain View, CA 94040",
+    "aliases": [
+      "el camino"
+    ]
+  },
+  {
+    "label": "Lucile Packard Children's Hospital, 725 Welch Rd, Palo Alto, CA 94304",
+    "aliases": [
+      "packard",
+      "lpch"
+    ]
+  },
+  {
+    "label": "Levi's Stadium, 4900 Marie P DeBartolo Way, Santa Clara, CA 95054",
+    "aliases": [
+      "levis stadium",
+      "49ers"
+    ]
+  },
+  {
+    "label": "SAP Center, 525 W Santa Clara St, San Jose, CA 95113",
+    "aliases": [
+      "sap center",
+      "shark tank"
+    ]
+  },
+  {
+    "label": "Shoreline Amphitheatre, 1 Amphitheatre Pkwy, Mountain View, CA 94043",
+    "aliases": [
+      "shoreline"
+    ]
+  },
+  {
+    "label": "Apple Park Visitor Center, 10600 N Tantau Ave, Cupertino, CA 95014",
+    "aliases": [
+      "apple park",
+      "apple campus"
+    ]
+  },
+  {
+    "label": "Googleplex, 1600 Amphitheatre Pkwy, Mountain View, CA 94043",
+    "aliases": [
+      "google"
+    ]
+  },
+  {
+    "label": "Meta Headquarters, 1 Hacker Way, Menlo Park, CA 94025",
+    "aliases": [
+      "meta",
+      "facebook"
+    ]
+  },
+  {
+    "label": "San Francisco, CA",
+    "aliases": [
+      "sf",
+      "san francisco"
+    ]
+  },
+  {
+    "label": "San Jose, CA",
+    "aliases": [
+      "sj"
+    ]
+  },
+  {
+    "label": "Oakland, CA",
+    "aliases": []
+  },
+  {
+    "label": "Burlingame, CA 94010",
+    "aliases": []
+  },
+  {
+    "label": "Millbrae, CA 94030",
+    "aliases": []
+  },
+  {
+    "label": "San Mateo, CA",
+    "aliases": []
+  },
+  {
+    "label": "Redwood City, CA",
+    "aliases": []
+  },
+  {
+    "label": "Palo Alto, CA",
+    "aliases": []
+  },
+  {
+    "label": "Menlo Park, CA",
+    "aliases": []
+  },
+  {
+    "label": "Mountain View, CA",
+    "aliases": []
+  },
+  {
+    "label": "Sunnyvale, CA",
+    "aliases": []
+  },
+  {
+    "label": "Santa Clara, CA",
+    "aliases": []
+  },
+  {
+    "label": "Cupertino, CA",
+    "aliases": []
+  },
+  {
+    "label": "Fremont, CA",
+    "aliases": []
+  },
+  {
+    "label": "Hayward, CA",
+    "aliases": []
+  },
+  {
+    "label": "Berkeley, CA",
+    "aliases": []
+  },
+  {
+    "label": "Walnut Creek, CA",
+    "aliases": []
+  },
+  {
+    "label": "Concord, CA",
+    "aliases": []
+  },
+  {
+    "label": "Livermore, CA",
+    "aliases": []
+  },
+  {
+    "label": "Pleasanton, CA",
+    "aliases": []
+  },
+  {
+    "label": "Daly City, CA",
+    "aliases": []
+  },
+  {
+    "label": "South San Francisco, CA",
+    "aliases": [
+      "ssf"
+    ]
+  },
+  {
+    "label": "Half Moon Bay, CA",
+    "aliases": [
+      "hmb"
+    ]
+  },
+  {
+    "label": "Sausalito, CA",
+    "aliases": []
+  },
+  {
+    "label": "Napa, CA",
+    "aliases": []
+  },
+  {
+    "label": "Sonoma, CA",
+    "aliases": []
+  },
+  {
+    "label": "Sacramento, CA",
+    "aliases": []
+  },
+  {
+    "label": "Los Angeles, CA",
+    "aliases": [
+      "la"
+    ]
+  },
+  {
+    "label": "San Diego, CA",
+    "aliases": []
+  },
+  {
+    "label": "Monterey, CA",
+    "aliases": []
+  },
+  {
+    "label": "Carmel-by-the-Sea, CA",
+    "aliases": [
+      "carmel"
+    ]
+  },
+  {
+    "label": "Santa Cruz, CA",
+    "aliases": []
+  }
+]

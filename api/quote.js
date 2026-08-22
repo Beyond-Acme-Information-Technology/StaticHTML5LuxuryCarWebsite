@@ -21,20 +21,31 @@ module.exports = async (req, res) => {
 
     const distance = await tripDistance({ pickup, dropoff, stops });
     const rate = await rateFor(distance.country, rideCategory);
-    const quote = computeQuote({
-      miles: distance.miles,
-      stopCount: distance.stopCount,
-      rate,
-    });
+    const routes = (distance.routes || []).map((route) => ({
+      ...route,
+      quote: computeQuote({
+        miles: route.miles,
+        stopCount: distance.stopCount,
+        rate,
+      }),
+    }));
+    const selected = routes[0];
+    const quote = {
+      ...selected.quote,
+      miles: selected.miles,
+      routeLabel: selected.label,
+      durationMinutes: selected.durationMinutes,
+    };
 
     return res.status(200).json({
       ok: true,
       pickup,
       dropoff,
       stops: stops.map((item) => String(item || '').trim()).filter(Boolean),
-      durationMinutes: distance.durationMinutes,
+      durationMinutes: selected.durationMinutes,
       country: distance.country,
       resolved: distance.resolved,
+      routes,
       quote,
     });
   } catch (err) {

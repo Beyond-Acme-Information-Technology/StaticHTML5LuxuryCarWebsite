@@ -7,6 +7,7 @@ import {
   saveClientProfilePrefill,
   saveClientSession,
 } from '@/utils/clientSession';
+import TripLiveMap from '@/components/TripLiveMap';
 
 type Ride = {
   id: string;
@@ -25,7 +26,12 @@ type Ride = {
   miles?: number;
   quoteCents?: number;
   paymentStatus?: string;
-  rideCategory?: string;
+  tripStatus?: string;
+  tripLive?: boolean;
+  driverName?: string;
+  trackToken?: string;
+  lastPing?: { lat: number; lon: number; at?: string } | null;
+  tripMessages?: { at: string; text: string }[];
 };
 
 type Message = {
@@ -416,6 +422,25 @@ function RideCard({
         <p className="text-white text-xl my-2">${(Number(ride.quoteCents) / 100).toFixed(2)}</p>
       ) : null}
       {ride.vehicle && <p className="text-gray-300">Vehicle: {ride.vehicle}</p>}
+      {(ride.tripStatus || ride.driverName) && (
+        <p className="text-[#D4AF37] mt-2">
+          {ride.driverName ? `${ride.driverName} · ` : ''}
+          {ride.tripStatus || ''}
+        </p>
+      )}
+      {ride.tripLive && (
+        <div className="mt-4">
+          <TripLiveMap ping={ride.lastPing} label="Live chauffeur location" />
+          {ride.trackToken && (
+            <a className="inline-block mt-3 text-[#D4AF37]" href={`#/track?t=${ride.trackToken}`}>
+              Open full live map
+            </a>
+          )}
+        </div>
+      )}
+      {ride.tripStatus === 'completed' && (
+        <p className="text-gray-400 mt-2">This trip has ended. Live tracking is off.</p>
+      )}
       {due && (
         <button
           type="button"

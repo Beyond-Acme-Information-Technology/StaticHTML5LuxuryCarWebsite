@@ -77,8 +77,21 @@ export default function Footer({ onNavigate }: FooterProps) {
           </div>
         </div>
 
-        <div className="border-t border-[#D4AF37]/20 mt-8 pt-8 text-center text-gray-400">
+        <div className="border-t border-[#D4AF37]/20 mt-8 pt-8 text-center text-gray-400 space-y-5">
           <p>&copy; {new Date().getFullYear()} {COMPANY.legalName}. All rights reserved.</p>
+          <a
+            href="https://www.beyondacme.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex flex-col sm:flex-row items-center justify-center gap-3 text-gray-300 hover:text-[#D4AF37]"
+          >
+            <span>Developed by</span>
+            <span className="inline-flex items-center gap-3 bg-white px-3 py-2">
+              <img src="/beyond-acme-logo.jpg" alt="Beyond Acme Information Technology" className="h-10 w-auto" />
+              <img src="/beyond-acme-icon.png" alt="" className="h-8 w-8" />
+            </span>
+            <span className="text-white">Beyond Acme Information Technology</span>
+          </a>
         </div>
       </div>
     </footer>

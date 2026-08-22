@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { COMPANY } from '@/config/company';
 import { apiUrl } from '@/utils/siteUrl';
+import TripLiveMap from '@/components/TripLiveMap';
 
 type Lead = {
   id: string;
@@ -23,6 +24,17 @@ type Lead = {
     paymentIntentId?: string;
     checkoutUrl?: string;
     stops?: string[];
+    routeLabel?: string;
+    trip?: {
+      status?: string;
+      driverId?: string;
+      driverName?: string;
+      trackToken?: string;
+      lastPing?: { lat: number; lon: number; at?: string };
+      onLocation?: { lat: number; lon: number; at?: string };
+      dropoffGps?: { lat: number; lon: number; at?: string };
+      luggagePhoto?: string;
+    };
   };
 };
 
@@ -36,8 +48,10 @@ export default function StaffInbox({ onNavigate }: StaffInboxProps) {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<'inbox' | 'rates'>('inbox');
+  const [tab, setTab] = useState<'inbox' | 'rates' | 'drivers'>('inbox');
   const [rates, setRates] = useState<any[]>([]);
+  const [drivers, setDrivers] = useState<any[]>([]);
+  const [assign, setAssign] = useState<Record<string, string>>({});
   const [surcharge, setSurcharge] = useState<Record<string, { minutes: string; amount: string; reason: string }>>({});
   const token = typeof window !== 'undefined' ? sessionStorage.getItem('staffToken') : null;
 
@@ -63,6 +77,11 @@ export default function StaffInbox({ onNavigate }: StaffInboxProps) {
       });
       const ratesJson = await ratesRes.json().catch(() => ({}));
       if (ratesRes.ok) setRates(ratesJson.rates || []);
+      const driversRes = await fetch(apiUrl('/api/drivers'), {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const driversJson = await driversRes.json().catch(() => ({}));
+      if (driversRes.ok) setDrivers(driversJson.drivers || []);
     } catch (err: any) {
       setError(err.message || 'Could not load inbox');
     } finally {
@@ -158,6 +177,13 @@ export default function StaffInbox({ onNavigate }: StaffInboxProps) {
             >
               Per-mile rates
             </button>
+            <button
+              type="button"
+              className={`px-4 py-2 ${tab === 'drivers' ? 'bg-[#D4AF37] text-black' : 'text-gray-300'}`}
+              onClick={() => setTab('drivers')}
+            >
+              Chauffeurs
+            </button>
           </div>
 
           {error && (
@@ -207,6 +233,60 @@ export default function StaffInbox({ onNavigate }: StaffInboxProps) {
                   </label>
                   <button type="submit" className="px-4 py-2 bg-[#D4AF37] text-black">Save</button>
                 </form>
+              ))}
+            </div>
+          )}
+
+          {tab === 'drivers' && (
+            <div className="space-y-8">
+              <p className="text-gray-300">
+                Enter chauffeur details here, then assign them to a paid or accepted booking in Inbox.
+                They sign in at Login → Chauffeur with phone and PIN.
+              </p>
+              <form
+                className="bg-[#111] border border-[#D4AF37]/30 p-6 grid md:grid-cols-2 gap-4"
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (!token) return;
+                  const form = e.currentTarget;
+                  const payload = {
+                    name: (form.elements.namedItem('name') as HTMLInputElement).value,
+                    phone: (form.elements.namedItem('phone') as HTMLInputElement).value,
+                    email: (form.elements.namedItem('email') as HTMLInputElement).value,
+                    vehicle: (form.elements.namedItem('vehicle') as HTMLInputElement).value,
+                    licenseNo: (form.elements.namedItem('license') as HTMLInputElement).value,
+                    pin: (form.elements.namedItem('pin') as HTMLInputElement).value,
+                    notes: (form.elements.namedItem('notes') as HTMLInputElement).value,
+                  };
+                  const res = await fetch(apiUrl('/api/drivers'), {
+                    method: 'POST',
+                    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                  });
+                  const json = await res.json().catch(() => ({}));
+                  if (!res.ok) {
+                    setError(json.error || 'Could not save chauffeur');
+                    return;
+                  }
+                  setDrivers(json.drivers || []);
+                  form.reset();
+                }}
+              >
+                <input name="name" required placeholder="Full name" className="bg-black border border-[#D4AF37]/30 px-3 py-2 text-white" />
+                <input name="phone" required placeholder="Phone" className="bg-black border border-[#D4AF37]/30 px-3 py-2 text-white" />
+                <input name="email" placeholder="Email (optional)" className="bg-black border border-[#D4AF37]/30 px-3 py-2 text-white" />
+                <input name="vehicle" placeholder="Vehicle" className="bg-black border border-[#D4AF37]/30 px-3 py-2 text-white" />
+                <input name="license" placeholder="License #" className="bg-black border border-[#D4AF37]/30 px-3 py-2 text-white" />
+                <input name="pin" required placeholder="4–6 digit PIN" className="bg-black border border-[#D4AF37]/30 px-3 py-2 text-white" />
+                <input name="notes" placeholder="Notes" className="md:col-span-2 bg-black border border-[#D4AF37]/30 px-3 py-2 text-white" />
+                <button type="submit" className="px-4 py-2 bg-[#D4AF37] text-black">Save chauffeur</button>
+              </form>
+              {drivers.map((driver) => (
+                <article key={driver.id} className="border border-[#D4AF37]/30 p-4 text-gray-300">
+                  <p className="text-white text-xl">{driver.name}</p>
+                  <p>{driver.phone}{driver.vehicle ? ` · ${driver.vehicle}` : ''}</p>
+                  <p className="text-gray-500">{driver.active === false ? 'Inactive' : 'Active'}</p>
+                </article>
               ))}
             </div>
           )}
@@ -295,12 +375,72 @@ export default function StaffInbox({ onNavigate }: StaffInboxProps) {
                   </div>
                 </div>
 
-                {lead.meta?.quoteCents ? (
+                    {lead.meta?.quoteCents ? (
                   <div className="mt-6 border-t border-[#D4AF37]/20 pt-6 space-y-3">
                     <p className="text-white">
                       Quote ${(Number(lead.meta.quoteCents) / 100).toFixed(2)} · {lead.meta.miles || '?'} miles
+                      {lead.meta.routeLabel ? ` · ${lead.meta.routeLabel}` : ''}
                       {lead.meta.pickup ? ` · ${lead.meta.pickup} → ${lead.meta.dropoff}` : ''}
                     </p>
+                    {(lead.status === 'accepted' || lead.status === 'confirmed') && (
+                      <div className="flex flex-wrap gap-2 items-center">
+                        <select
+                          className="bg-black border border-[#D4AF37]/30 px-3 py-2 text-white"
+                          value={assign[lead.id] || lead.meta?.trip?.driverId || ''}
+                          onChange={(e) => setAssign((cur) => ({ ...cur, [lead.id]: e.target.value }))}
+                        >
+                          <option value="">Assign chauffeur</option>
+                          {drivers.filter((item) => item.active !== false).map((driver) => (
+                            <option key={driver.id} value={driver.id}>
+                              {driver.name}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          type="button"
+                          className="px-4 py-2 border border-[#D4AF37] text-[#D4AF37]"
+                          onClick={async () => {
+                            if (!token) return;
+                            const driverId = assign[lead.id] || lead.meta?.trip?.driverId;
+                            const res = await fetch(apiUrl('/api/drivers'), {
+                              method: 'POST',
+                              headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ action: 'assign', id: lead.id, driverId }),
+                            });
+                            const json = await res.json().catch(() => ({}));
+                            if (!res.ok) {
+                              setError(json.error || 'Could not assign chauffeur');
+                              return;
+                            }
+                            if (json.lead) {
+                              setLeads((current) => current.map((row) => (row.id === lead.id ? json.lead : row)));
+                            }
+                          }}
+                        >
+                          Assign trip
+                        </button>
+                      </div>
+                    )}
+                    {lead.meta?.trip && (
+                      <div className="space-y-3">
+                        <p className="text-[#D4AF37]">
+                          Trip: {lead.meta.trip.status} · {lead.meta.trip.driverName}
+                        </p>
+                        <TripLiveMap
+                          ping={lead.meta.trip.lastPing || lead.meta.trip.onLocation || lead.meta.trip.dropoffGps}
+                          ended={lead.meta.trip.status === 'completed'}
+                          label="Live chauffeur location"
+                        />
+                        {lead.meta.trip.trackToken && (
+                          <p className="text-gray-400 text-sm break-all">
+                            Guest track link: {`${window.location.origin}/#/track?t=${lead.meta.trip.trackToken}`}
+                          </p>
+                        )}
+                        {lead.meta.trip.luggagePhoto && String(lead.meta.trip.luggagePhoto).startsWith('data:image/') && (
+                          <img src={lead.meta.trip.luggagePhoto} alt="Luggage" className="max-h-48" />
+                        )}
+                      </div>
+                    )}
                     {lead.status === 'new' || lead.status === 'contacted' ? (
                       <button
                         type="button"

@@ -94,6 +94,12 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    if (parsed.pathname === '/api/places' && req.method === 'GET') {
+      const handler = require('./api/places');
+      await handler({ method: 'GET', query: parsed.query, url: req.url, headers: req.headers }, proxyRes);
+      return;
+    }
+
     if (parsed.pathname === '/api/client-auth' && req.method === 'POST') {
       const payload = await parseJSONBody(req);
       await clientAuth({ method: 'POST', body: payload, headers: req.headers }, proxyRes);
@@ -118,7 +124,15 @@ const server = http.createServer(async (req, res) => {
       '/api/pay': './api/pay',
       '/api/staff-booking': './api/staff-booking',
       '/api/stripe-confirm': './api/stripe-confirm',
+      '/api/drivers': './api/drivers',
+      '/api/driver-auth': './api/driver-auth',
+      '/api/driver-trip': './api/driver-trip',
     };
+    if (parsed.pathname === '/api/trip-track' && req.method === 'GET') {
+      const handler = require('./api/trip-track');
+      await handler({ method: 'GET', query: parsed.query, url: req.url, headers: req.headers }, proxyRes);
+      return;
+    }
     if (extra[parsed.pathname]) {
       const handler = require(extra[parsed.pathname]);
       const body = req.method === 'GET' ? {} : await parseJSONBody(req);

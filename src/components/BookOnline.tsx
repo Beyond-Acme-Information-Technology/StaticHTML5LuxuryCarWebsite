@@ -158,6 +158,8 @@ export default function BookOnline() {
           waitPerMinuteCents: quote.waitPerMinuteCents,
           country: quote.country,
           lineItems: quote.lineItems,
+          routeLabel: quote.routeLabel || '',
+          durationMinutes: quote.durationMinutes,
           paymentStatus: 'unpaid',
         },
         message: `Booking details:
@@ -174,6 +176,7 @@ Pickup: ${formData.pickupLocation}
 Stops: ${stops.join(' → ') || 'None'}
 Dropoff: ${formData.dropoffLocation}
 Miles: ${quote.miles}
+Route: ${quote.routeLabel || 'Fastest route'}
 Quote: $${(quote.totalCents / 100).toFixed(2)}
 Passenger type: ${quote.rideCategory}
 Vehicle: ${formData.vehicleType}

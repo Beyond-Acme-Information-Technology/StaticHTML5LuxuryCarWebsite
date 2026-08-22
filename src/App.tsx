@@ -14,9 +14,11 @@ import TermsOfService from './components/TermsOfService';
 import StaffInbox from './components/StaffInbox';
 import ClientPortal from './components/ClientPortal';
 import PaidThankYou from './components/PaidThankYou';
+import DriverPortal from './components/DriverPortal';
+import TrackTrip from './components/TrackTrip';
 import { CLIENT_AUTH_EVENT, hasClientSession } from './utils/clientSession';
 
-const VALID_PAGES = ['home', 'services', 'fleet', 'book', 'contact', 'jobs', 'privacy', 'login', 'terms', 'staff', 'account', 'paid'] as const;
+const VALID_PAGES = ['home', 'services', 'fleet', 'book', 'contact', 'jobs', 'privacy', 'login', 'terms', 'staff', 'account', 'paid', 'driver', 'track'] as const;
 type PageId = (typeof VALID_PAGES)[number];
 
 function pageFromHash(): PageId {
@@ -99,6 +101,10 @@ export default function App() {
         return <ClientPortal onNavigate={handleNavigate} />;
       case 'paid':
         return <PaidThankYou onNavigate={handleNavigate} />;
+      case 'driver':
+        return <DriverPortal onNavigate={handleNavigate} />;
+      case 'track':
+        return <TrackTrip onNavigate={handleNavigate} />;
       default:
         return <HomePage onNavigate={handleNavigate} />;
     }
