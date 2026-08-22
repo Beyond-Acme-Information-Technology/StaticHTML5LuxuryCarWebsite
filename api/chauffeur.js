@@ -22,6 +22,26 @@ function readBody(req) {
   return req.body;
 }
 
+async function readJsonBody(req) {
+  const parsed = readBody(req);
+  if (parsed && typeof parsed === 'object' && !Array.isArray(parsed) && Object.keys(parsed).length > 0) {
+    return parsed;
+  }
+  if (typeof req.on !== 'function') return parsed || {};
+  const raw = await new Promise((resolve, reject) => {
+    const chunks = [];
+    req.on('data', (chunk) => chunks.push(Buffer.from(chunk)));
+    req.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
+    req.on('error', reject);
+  });
+  if (!raw) return parsed || {};
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return parsed || {};
+  }
+}
+
 function routeOf(req) {
   if (req.query && req.query.route) return String(req.query.route);
   const raw = String(req.url || '');
@@ -54,7 +74,7 @@ async function handleDrivers(req, res) {
     res.setHeader('Allow', 'GET, POST');
     return res.status(405).json({ error: 'Method not allowed' });
   }
-  const body = readBody(req);
+  const body = await readJsonBody(req);
   if (body.action === 'assign') {
     const lead = await assignDriver(body.leadId || body.id, body.driverId);
     return res.status(200).json({ ok: true, lead });
@@ -77,7 +97,7 @@ async function handleAuth(req, res) {
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ error: 'Method not allowed' });
   }
-  const body = readBody(req);
+  const body = await readJsonBody(req);
   const result = await loginDriver(body.phone, body.pin);
   return res.status(200).json({ ok: true, ...result });
 }
@@ -108,7 +128,7 @@ async function handleTrip(req, res) {
     res.setHeader('Allow', 'GET, POST');
     return res.status(405).json({ error: 'Method not allowed' });
   }
-  const body = readBody(req);
+  const body = await readJsonBody(req);
   const lead = await driverAction(body.leadId || body.id, session.driverId, body);
   return res.status(200).json({ ok: true, trip: publicTrip(lead) });
 }
@@ -151,9 +171,9 @@ module.exports = async (req, res) => {
     if (typeof message === 'string' && message.trim().startsWith('{')) {
       try {
         const parsed = JSON.parse(message);
-        message = parsed.message || parsed.hint || 'Could not save chauffeur';
+        message = parsed.message || parsed.hint || 'Chauffeur request failed';
       } catch {
-        message = 'Could not save chauffeur';
+        message = 'Chauffeur request failed';
       }
     }
     return res.status(code).json({ error: message });

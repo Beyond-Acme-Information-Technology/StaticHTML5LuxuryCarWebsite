@@ -416,7 +416,7 @@ export default function StaffInbox({ onNavigate }: StaffInboxProps) {
                       {lead.meta.routeLabel ? ` · ${lead.meta.routeLabel}` : ''}
                       {lead.meta.pickup ? ` · ${lead.meta.pickup} → ${lead.meta.dropoff}` : ''}
                     </p>
-                    {(lead.status === 'accepted' || lead.status === 'confirmed') && (
+                    {(lead.status === 'accepted' || lead.status === 'confirmed' || lead.meta?.paymentStatus === 'paid') && (
                       <div className="flex flex-wrap gap-2 items-center">
                         <select
                           className="bg-black border border-[#D4AF37]/30 px-3 py-2 text-white"
@@ -436,6 +436,14 @@ export default function StaffInbox({ onNavigate }: StaffInboxProps) {
                           onClick={async () => {
                             if (!token) return;
                             const driverId = assign[lead.id] || lead.meta?.trip?.driverId;
+                            if (!driverId) {
+                              setError('Select a chauffeur from the list, then click Assign trip.');
+                              return;
+                            }
+                            if (!drivers.length) {
+                              setError('No chauffeurs loaded. Open the Chauffeurs tab, save one, then click Refresh.');
+                              return;
+                            }
                             const res = await fetch(apiUrl('/api/drivers'), {
                               method: 'POST',
                               headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
@@ -446,6 +454,7 @@ export default function StaffInbox({ onNavigate }: StaffInboxProps) {
                               setError(json.error || 'Could not assign chauffeur');
                               return;
                             }
+                            setError(null);
                             if (json.lead) {
                               setLeads((current) => current.map((row) => (row.id === lead.id ? json.lead : row)));
                             }
@@ -453,6 +462,9 @@ export default function StaffInbox({ onNavigate }: StaffInboxProps) {
                         >
                           Assign trip
                         </button>
+                        {drivers.length === 0 && (
+                          <p className="text-gray-400 text-sm">Save a chauffeur on the Chauffeurs tab first.</p>
+                        )}
                       </div>
                     )}
                     {lead.meta?.trip && (
