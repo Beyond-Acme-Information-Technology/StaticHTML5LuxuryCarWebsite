@@ -1,3 +1,31 @@
+/* Keep the shell black even if a page fails to mount. */
+:root {
+  --background: #000;
+  --foreground: #f5f5f5;
+}
+
+html,
+body,
+#root {
+  background-color: #000;
+}
+
+.als-partner-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  padding: 6px 8px;
+}
+
+.als-partner-logo {
+  display: block;
+  height: 28px;
+  width: auto;
+  max-width: 132px;
+  object-fit: contain;
+}
+
 /* Subtle raised gold / recessed fields so the luxury site is not all flat. */
 
 .text-\[\#D4AF37\] {

@@ -68,6 +68,8 @@ export default function BookOnline() {
   }, []);
 
   const selectedVehicle = VEHICLE_OPTIONS.find((vehicle) => vehicle.name === formData.vehicleType);
+  const selectedAirport = AIRPORTS.find((item) => item.id === formData.airport);
+  const showAirportFields = formData.serviceType === 'airport';
   const maxPassengers = selectedVehicle?.seats ?? 7;
 
   function applyAirportAddress(next: {

@@ -1,11 +1,26 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "build",
+  "headers": [
+    {
+      "source": "/",
+      "headers": [{ "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }]
+    },
+    {
+      "source": "/index.html",
+      "headers": [{ "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    }
+  ],
   "rewrites": [
     { "source": "/api/places", "destination": "/api/quote" },
     { "source": "/api/drivers", "destination": "/api/chauffeur?route=drivers" },
     { "source": "/api/driver-auth", "destination": "/api/chauffeur?route=auth" },
     { "source": "/api/driver-trip", "destination": "/api/chauffeur?route=trip" },
-    { "source": "/api/trip-track", "destination": "/api/chauffeur?route=track" }
+    { "source": "/api/trip-track", "destination": "/api/chauffeur?route=track" },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }

@@ -34,6 +34,9 @@ module.exports = async (req, res) => {
       }),
     }));
     const selected = routes[0];
+    if (!selected || !selected.quote) {
+      throw new Error('Could not calculate miles for those addresses');
+    }
     const quote = {
       ...selected.quote,
       miles: selected.miles,

@@ -1,7 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { DayPicker } from 'react-day-picker';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import 'react-day-picker/dist/style.css';
 import './DatePicker.css';
 
@@ -42,33 +41,39 @@ type DatePickerProps = {
 
 export default function DatePicker({ value, onChange, error }: DatePickerProps) {
   const [open, setOpen] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
   const today = startOfToday();
   const maxDate = new Date(today);
   maxDate.setFullYear(maxDate.getFullYear() + 2);
   const selected = value ? fromISODate(value) : undefined;
 
+  useEffect(() => {
+    if (!open) return;
+    function onDoc(event: MouseEvent) {
+      if (!wrapRef.current?.contains(event.target as Node)) setOpen(false);
+    }
+    document.addEventListener('mousedown', onDoc);
+    return () => document.removeEventListener('mousedown', onDoc);
+  }, [open]);
+
   return (
-    <div>
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <button
-            type="button"
-            aria-label="Choose pickup date"
-            aria-expanded={open}
-            className={`w-full bg-black border ${
-              error ? 'border-red-500' : 'border-[#D4AF37]/30'
-            } px-4 py-3 text-left text-white hover:border-[#D4AF37] focus:border-[#D4AF37] focus:outline-none transition-colors flex items-center justify-between gap-3`}
-          >
-            <span className={value ? 'text-white' : 'text-gray-500'}>
-              {value ? formatPickupDate(value) : 'Tap to open calendar'}
-            </span>
-            <CalendarIcon size={20} className="text-[#D4AF37] shrink-0" />
-          </button>
-        </PopoverTrigger>
-        <PopoverContent
-          align="start"
-          className="w-auto bg-[#111] text-white border-[#D4AF37] z-[80] p-3 rounded-none shadow-2xl"
-        >
+    <div ref={wrapRef} className="relative">
+      <button
+        type="button"
+        aria-label="Choose pickup date"
+        aria-expanded={open}
+        onClick={() => setOpen((current) => !current)}
+        className={`w-full bg-black border ${
+          error ? 'border-red-500' : 'border-[#D4AF37]/30'
+        } px-4 py-3 text-left text-white hover:border-[#D4AF37] focus:border-[#D4AF37] focus:outline-none transition-colors flex items-center justify-between gap-3`}
+      >
+        <span className={value ? 'text-white' : 'text-gray-500'}>
+          {value ? formatPickupDate(value) : 'Tap to open calendar'}
+        </span>
+        <CalendarIcon size={20} className="text-[#D4AF37] shrink-0" />
+      </button>
+      {open && (
+        <div className="absolute z-[80] left-0 mt-1 bg-[#111] text-white border border-[#D4AF37] p-3 shadow-2xl">
           <DayPicker
             mode="single"
             className="als-daypicker"
@@ -82,12 +87,9 @@ export default function DatePicker({ value, onChange, error }: DatePickerProps) 
             disabled={{ before: today }}
             fromDate={today}
             toDate={maxDate}
-            captionLayout="dropdown"
-            fromYear={today.getFullYear()}
-            toYear={maxDate.getFullYear()}
           />
-        </PopoverContent>
-      </Popover>
+        </div>
+      )}
       {error && <p className="text-red-400 text-sm mt-2">{error}</p>}
     </div>
   );

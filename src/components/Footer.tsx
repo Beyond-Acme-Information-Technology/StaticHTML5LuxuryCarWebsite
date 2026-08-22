@@ -86,11 +86,11 @@ export default function Footer({ onNavigate }: FooterProps) {
             className="inline-flex flex-col items-center gap-2 text-gray-400 hover:text-[#D4AF37]"
           >
             <span className="text-xs tracking-[0.2em] uppercase">Developed by</span>
-            <span className="bg-white px-4 py-2.5 inline-flex items-center justify-center">
+            <span className="als-partner-mark">
               <img
                 src="/beyond-acme-logo.jpg"
                 alt="Beyond Acme Information Technology"
-                className="block max-h-12 sm:max-h-14 w-auto max-w-[240px] object-contain"
+                className="als-partner-logo"
               />
             </span>
           </a>

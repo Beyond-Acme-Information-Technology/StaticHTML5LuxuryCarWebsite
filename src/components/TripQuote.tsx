@@ -125,15 +125,20 @@ export default function TripQuote({
       }
       const nextRoutes: RouteOption[] = Array.isArray(json.routes) && json.routes.length
         ? json.routes
-        : [
-            {
-              id: 0,
-              label: 'Fastest route',
-              miles: json.quote.miles,
-              durationMinutes: json.durationMinutes,
-              quote: json.quote,
-            },
-          ];
+        : json.quote
+          ? [
+              {
+                id: 0,
+                label: 'Fastest route',
+                miles: json.quote.miles,
+                durationMinutes: json.durationMinutes,
+                quote: json.quote,
+              },
+            ]
+          : [];
+      if (!nextRoutes[0]?.quote) {
+        throw new Error('Could not calculate miles for those addresses');
+      }
       setRoutes(nextRoutes);
       onQuote(toQuote(json, pickup, dropoff, stops, nextRoutes[0]));
     } catch (err: any) {

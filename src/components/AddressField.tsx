@@ -8,22 +8,17 @@ type Place = PlaceSuggestion;
 const fieldClass =
   'w-full bg-black border border-[#D4AF37]/30 px-4 py-3 text-white focus:border-[#D4AF37] focus:outline-none';
 
-function readSession(query: string): Place[] | null {
-  try {
-    const raw = sessionStorage.getItem(`alsPlace:${query.toLowerCase()}`);
-    if (!raw) return null;
-    return JSON.parse(raw) as Place[];
-  } catch {
-    return null;
+function mergePlaces(local: Place[], remote: Place[]) {
+  const seen = new Set<string>();
+  const out: Place[] = [];
+  for (const place of [...local, ...remote]) {
+    const key = String(place.label || '').toLowerCase();
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    out.push(place);
+    if (out.length >= 8) break;
   }
-}
-
-function writeSession(query: string, places: Place[]) {
-  try {
-    sessionStorage.setItem(`alsPlace:${query.toLowerCase()}`, JSON.stringify(places));
-  } catch {
-    // quota
-  }
+  return out;
 }
 
 type AddressFieldProps = {
@@ -46,6 +41,7 @@ export default function AddressField({
   const listId = useId();
   const wrapRef = useRef<HTMLDivElement>(null);
   const pickedRef = useRef(false);
+  const requestRef = useRef(0);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
   const [places, setPlaces] = useState<Place[]>([]);
@@ -55,42 +51,42 @@ export default function AddressField({
     const query = value.trim();
     if (pickedRef.current) {
       pickedRef.current = false;
-      setPlaces([]);
-      setOpen(false);
       return;
     }
     if (query.length < 2) {
+      requestRef.current += 1;
       setPlaces([]);
       setOpen(false);
+      setLoading(false);
       return;
     }
 
     const local = searchCaliforniaPlaces(query, 8);
-    const cached = readSession(query);
-    const first = cached?.length ? cached : local;
-    if (first.length) {
-      setPlaces(first);
-      setOpen(true);
-    }
+    setPlaces(local);
+    setOpen(true);
+    setActive(0);
 
+    const requestId = ++requestRef.current;
     const handle = window.setTimeout(async () => {
       setLoading(true);
       try {
         const res = await fetch(`${apiUrl('/api/places')}?q=${encodeURIComponent(query)}`);
         const json = await res.json().catch(() => ({ places: [] }));
-        const next = Array.isArray(json.places) ? json.places : local;
-        setPlaces(next);
-        if (next.length) {
-          writeSession(query, next);
-          setOpen(true);
-        }
+        if (requestId !== requestRef.current) return;
+        const remote = Array.isArray(json.places) ? json.places : [];
+        const next = mergePlaces(local, remote);
+        setPlaces(next.length ? next : local);
+        setOpen(true);
         setActive(0);
       } catch {
-        setPlaces(cached || local);
+        if (requestId !== requestRef.current) return;
+        setPlaces(local);
+        if (local.length) setOpen(true);
       } finally {
-        setLoading(false);
+        if (requestId === requestRef.current) setLoading(false);
       }
-    }, 280);
+    }, 220);
+
     return () => window.clearTimeout(handle);
   }, [value]);
 
@@ -104,9 +100,14 @@ export default function AddressField({
 
   function choose(place: Place) {
     pickedRef.current = true;
+    requestRef.current += 1;
     onChange(place.label);
+    setPlaces([]);
     setOpen(false);
+    setLoading(false);
   }
+
+  const showList = open && (places.length > 0 || loading);
 
   return (
     <div ref={wrapRef} className={`relative ${className || ''}`}>
@@ -115,11 +116,12 @@ export default function AddressField({
         onChange={(e) => {
           pickedRef.current = false;
           onChange(e.target.value);
-          setOpen(true);
         }}
-        onFocus={() => places.length && setOpen(true)}
+        onFocus={() => {
+          if (places.length || value.trim().length >= 2) setOpen(true);
+        }}
         onKeyDown={(e) => {
-          if (!open || !places.length) return;
+          if (!showList || !places.length) return;
           if (e.key === 'ArrowDown') {
             e.preventDefault();
             setActive((i) => (i + 1) % places.length);
@@ -139,16 +141,17 @@ export default function AddressField({
         aria-label={ariaLabel}
         aria-autocomplete="list"
         aria-controls={listId}
-        aria-expanded={open}
+        aria-expanded={showList}
         role="combobox"
         className={fieldClass}
         placeholder={placeholder}
       />
-      {open && (places.length > 0 || loading) && (
+      {showList && (
         <ul
           id={listId}
           role="listbox"
           className="absolute z-[80] left-0 right-0 mt-1 max-h-64 overflow-auto bg-[#111] border border-[#D4AF37] shadow-xl"
+          onMouseDown={(event) => event.preventDefault()}
         >
           {loading && !places.length && (
             <li className="px-4 py-3 text-gray-400 text-sm">Looking up California addresses…</li>
@@ -161,7 +164,10 @@ export default function AddressField({
                   index === active ? 'bg-[#D4AF37]/20 text-white' : 'text-gray-200 hover:bg-[#D4AF37]/10'
                 }`}
                 onMouseEnter={() => setActive(index)}
-                onClick={() => choose(place)}
+                onMouseDown={(event) => {
+                  event.preventDefault();
+                  choose(place);
+                }}
               >
                 <MapPin size={16} className="text-[#D4AF37] mt-1 shrink-0" />
                 <span>

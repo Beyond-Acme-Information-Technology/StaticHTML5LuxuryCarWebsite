@@ -1,8 +1,14 @@
-import PLACES from '../../lib/california-places.json';
+import rawPlaces from '../../lib/california-places.json';
 
 export type PlaceSuggestion = { label: string; hint?: string; source?: string };
 
 type PlaceRow = { label: string; hint?: string; aliases?: string[] };
+
+const PLACES: PlaceRow[] = Array.isArray(rawPlaces)
+  ? rawPlaces
+  : Array.isArray((rawPlaces as { default?: PlaceRow[] }).default)
+    ? ((rawPlaces as { default: PlaceRow[] }).default)
+    : [];
 
 function normalize(value: string) {
   return String(value || '')
