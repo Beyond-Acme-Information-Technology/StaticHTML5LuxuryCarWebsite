@@ -1,5 +1,6 @@
 import { ChevronRight } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
+import { COMPANY } from '@/config/company';
 
 interface HomePageProps {
   onNavigate: (page: string) => void;
@@ -104,6 +105,35 @@ export default function HomePage({ onNavigate }: HomePageProps) {
               className="px-8 py-4 border-2 border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition-all duration-300 tracking-wider"
             >
               SJC TRANSFERS
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20 px-4">
+        <div className="max-w-4xl mx-auto text-center border border-[#D4AF37]/30 p-10 md:p-14">
+          <p className="text-[#D4AF37] tracking-wider mb-3">GUEST REVIEWS</p>
+          <h2 className="text-4xl mb-4 text-white">Rated {COMPANY.yelpRating} on Yelp</h2>
+          <p className="text-gray-300 mb-8">
+            {COMPANY.yelpReviewCount} guest reviews for our Burlingame chauffeur service.
+            Full write-ups stay on Yelp so they remain authentic.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <a
+              href={COMPANY.yelpUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-8 py-4 bg-[#D4AF37] text-black hover:bg-[#B4941F] transition-all duration-300 tracking-wider"
+            >
+              READ REVIEWS ON YELP
+            </a>
+            <a
+              href={COMPANY.yelpUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-8 py-4 border-2 border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black transition-all duration-300 tracking-wider"
+            >
+              WRITE A REVIEW
             </a>
           </div>
         </div>

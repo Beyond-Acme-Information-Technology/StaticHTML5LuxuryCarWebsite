@@ -65,6 +65,14 @@ export default function Footer({ onNavigate }: FooterProps) {
                 </button>
               ))}
               <p className="text-[#D4AF37] mt-4">{COMPANY.serviceHours}</p>
+              <a
+                href={COMPANY.yelpUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block mt-4 text-[#D4AF37] hover:text-[#B4941F]"
+              >
+                Yelp reviews
+              </a>
             </div>
           </div>
         </div>

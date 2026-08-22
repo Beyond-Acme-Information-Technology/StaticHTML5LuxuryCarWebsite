@@ -15,6 +15,9 @@ export const COMPANY = {
   timezone: 'Pacific Time',
   officeHours: 'Office Hours: 8:00 AM – 8:00 PM PT',
   serviceHours: 'Monday – Sunday: 24 Hours',
+  yelpUrl: 'https://www.yelp.com/biz/awesome-luxury-services-burlingame',
+  yelpRating: '5.0',
+  yelpReviewCount: 3,
 } as const;
 
 export const FULL_ADDRESS = `${COMPANY.addressLine1}, ${COMPANY.addressLine2}, ${COMPANY.country}`;
