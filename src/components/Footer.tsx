@@ -83,14 +83,16 @@ export default function Footer({ onNavigate }: FooterProps) {
             href="https://www.beyondacme.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex flex-col sm:flex-row items-center justify-center gap-3 text-gray-300 hover:text-[#D4AF37]"
+            className="inline-flex flex-col items-center gap-2 text-gray-400 hover:text-[#D4AF37]"
           >
-            <span>Developed by</span>
-            <span className="inline-flex items-center gap-3 bg-white px-3 py-2">
-              <img src="/beyond-acme-logo.jpg" alt="Beyond Acme Information Technology" className="h-10 w-auto" />
-              <img src="/beyond-acme-icon.png" alt="" className="h-8 w-8" />
+            <span className="text-xs tracking-[0.2em] uppercase">Developed by</span>
+            <span className="bg-white px-4 py-2.5 inline-flex items-center justify-center">
+              <img
+                src="/beyond-acme-logo.jpg"
+                alt="Beyond Acme Information Technology"
+                className="block max-h-12 sm:max-h-14 w-auto max-w-[240px] object-contain"
+              />
             </span>
-            <span className="text-white">Beyond Acme Information Technology</span>
           </a>
         </div>
       </div>
