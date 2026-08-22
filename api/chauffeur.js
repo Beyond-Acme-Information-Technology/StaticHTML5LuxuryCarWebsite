@@ -5,6 +5,13 @@ const { assignDriver, driverAction, tripsForDriver, publicTrip, tripByTrackToken
 
 function readBody(req) {
   if (!req.body) return {};
+  if (Buffer.isBuffer(req.body)) {
+    try {
+      return JSON.parse(req.body.toString('utf8') || '{}');
+    } catch {
+      return {};
+    }
+  }
   if (typeof req.body === 'string') {
     try {
       return JSON.parse(req.body || '{}');
@@ -40,7 +47,8 @@ async function handleDrivers(req, res) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
   if (req.method === 'GET') {
-    return res.status(200).json({ drivers: await listDrivers() });
+    const drivers = await listDrivers();
+    return res.status(200).json({ drivers });
   }
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'GET, POST');
@@ -52,7 +60,16 @@ async function handleDrivers(req, res) {
     return res.status(200).json({ ok: true, lead });
   }
   const driver = await upsertDriver(body);
-  return res.status(200).json({ ok: true, driver, drivers: await listDrivers() });
+  let drivers = [];
+  try {
+    drivers = await listDrivers();
+  } catch (err) {
+    console.error('list drivers after save:', err.message);
+  }
+  if (driver && !drivers.some((row) => row.id === driver.id)) {
+    drivers = [driver, ...drivers];
+  }
+  return res.status(200).json({ ok: true, driver, drivers });
 }
 
 async function handleAuth(req, res) {
@@ -130,6 +147,15 @@ module.exports = async (req, res) => {
   } catch (err) {
     const code = route === 'auth' ? 401 : err.status || 400;
     console.error('chauffeur:', err.message);
-    return res.status(code).json({ error: err.message || 'Chauffeur request failed' });
+    let message = err.message || 'Chauffeur request failed';
+    if (typeof message === 'string' && message.trim().startsWith('{')) {
+      try {
+        const parsed = JSON.parse(message);
+        message = parsed.message || parsed.hint || 'Could not save chauffeur';
+      } catch {
+        message = 'Could not save chauffeur';
+      }
+    }
+    return res.status(code).json({ error: message });
   }
 };

@@ -29,7 +29,7 @@ export default function Services({ onNavigate }: ServicesProps) {
       icon: <Users size={40} />,
       title: 'Group Transportation',
       description: 'Luxury SUVs and a party bus for birthdays, concerts, wineries, and corporate outings. One chauffeur, everyone together.',
-      image: 'https://images.unsplash.com/photo-1527786356703-4b16e2c8cb27?auto=format&fit=crop&w=1400&q=80'
+      image: '/fleet/party-bus.png'
     },
     {
       icon: <Clock size={40} />,
@@ -41,7 +41,7 @@ export default function Services({ onNavigate }: ServicesProps) {
       icon: <Car size={40} />,
       title: 'Private Chauffeur',
       description: 'Dedicated chauffeur service for long-term arrangements. Your personal driver available when you need them.',
-      image: 'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&w=1400&q=80'
+      image: '/fleet/s-class.jpg'
     }
   ];
 

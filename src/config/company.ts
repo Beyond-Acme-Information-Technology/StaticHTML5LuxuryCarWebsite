@@ -27,7 +27,7 @@ export const MAPS_EMBED_SRC = `https://maps.google.com/maps?q=${encodeURICompone
 export const VEHICLE_OPTIONS = [
   { name: 'Mercedes-Benz S-Class', kind: 'Executive sedan', seats: 3 },
   { name: 'BMW 7 Series', kind: 'Luxury sedan', seats: 3 },
-  { name: 'Audi A8', kind: 'Premium sedan', seats: 3 },
+  { name: 'Chevrolet Suburban', kind: 'Full-size SUV', seats: 7 },
   { name: 'Range Rover Autobiography', kind: 'Luxury SUV', seats: 6 },
   { name: 'Tesla Model S', kind: 'Electric luxury', seats: 4 },
   { name: 'Cadillac Escalade ESV', kind: 'Executive SUV', seats: 7 },

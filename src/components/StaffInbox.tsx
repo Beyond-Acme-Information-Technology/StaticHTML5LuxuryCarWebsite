@@ -51,6 +51,8 @@ export default function StaffInbox({ onNavigate }: StaffInboxProps) {
   const [tab, setTab] = useState<'inbox' | 'rates' | 'drivers'>('inbox');
   const [rates, setRates] = useState<any[]>([]);
   const [drivers, setDrivers] = useState<any[]>([]);
+  const [driversError, setDriversError] = useState<string | null>(null);
+  const [savingDriver, setSavingDriver] = useState(false);
   const [assign, setAssign] = useState<Record<string, string>>({});
   const [surcharge, setSurcharge] = useState<Record<string, { minutes: string; amount: string; reason: string }>>({});
   const token = typeof window !== 'undefined' ? sessionStorage.getItem('staffToken') : null;
@@ -81,7 +83,12 @@ export default function StaffInbox({ onNavigate }: StaffInboxProps) {
         headers: { Authorization: `Bearer ${token}` },
       });
       const driversJson = await driversRes.json().catch(() => ({}));
-      if (driversRes.ok) setDrivers(driversJson.drivers || []);
+      if (driversRes.ok) {
+        setDrivers(driversJson.drivers || []);
+        setDriversError(null);
+      } else {
+        setDriversError(driversJson.error || `Could not load chauffeurs (${driversRes.status})`);
+      }
     } catch (err: any) {
       setError(err.message || 'Could not load inbox');
     } finally {
@@ -243,11 +250,14 @@ export default function StaffInbox({ onNavigate }: StaffInboxProps) {
                 Enter chauffeur details here, then assign them to a paid or accepted booking in Inbox.
                 They sign in at Login → Chauffeur with phone and PIN.
               </p>
+              {driversError && (
+                <div className="p-4 border border-red-500 text-red-200">{driversError}</div>
+              )}
               <form
                 className="bg-[#111] border border-[#D4AF37]/30 p-6 grid md:grid-cols-2 gap-4"
                 onSubmit={async (e) => {
                   e.preventDefault();
-                  if (!token) return;
+                  if (!token || savingDriver) return;
                   const form = e.currentTarget;
                   const payload = {
                     name: (form.elements.namedItem('name') as HTMLInputElement).value,
@@ -258,18 +268,30 @@ export default function StaffInbox({ onNavigate }: StaffInboxProps) {
                     pin: (form.elements.namedItem('pin') as HTMLInputElement).value,
                     notes: (form.elements.namedItem('notes') as HTMLInputElement).value,
                   };
-                  const res = await fetch(apiUrl('/api/drivers'), {
-                    method: 'POST',
-                    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
-                  });
-                  const json = await res.json().catch(() => ({}));
-                  if (!res.ok) {
-                    setError(json.error || 'Could not save chauffeur');
-                    return;
+                  setSavingDriver(true);
+                  setDriversError(null);
+                  try {
+                    const res = await fetch(apiUrl('/api/drivers'), {
+                      method: 'POST',
+                      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+                      body: JSON.stringify(payload),
+                    });
+                    const json = await res.json().catch(() => ({}));
+                    if (!res.ok) {
+                      setDriversError(json.error || 'Could not save chauffeur');
+                      return;
+                    }
+                    const next = Array.isArray(json.drivers) ? [...json.drivers] : [];
+                    if (json.driver && !next.some((row: any) => row.id === json.driver.id)) {
+                      next.unshift(json.driver);
+                    }
+                    setDrivers(next);
+                    form.reset();
+                  } catch (err: any) {
+                    setDriversError(err.message || 'Could not save chauffeur');
+                  } finally {
+                    setSavingDriver(false);
                   }
-                  setDrivers(json.drivers || []);
-                  form.reset();
                 }}
               >
                 <input name="name" required placeholder="Full name" className="bg-black border border-[#D4AF37]/30 px-3 py-2 text-white" />
@@ -279,15 +301,27 @@ export default function StaffInbox({ onNavigate }: StaffInboxProps) {
                 <input name="license" placeholder="License #" className="bg-black border border-[#D4AF37]/30 px-3 py-2 text-white" />
                 <input name="pin" required placeholder="4–6 digit PIN" className="bg-black border border-[#D4AF37]/30 px-3 py-2 text-white" />
                 <input name="notes" placeholder="Notes" className="md:col-span-2 bg-black border border-[#D4AF37]/30 px-3 py-2 text-white" />
-                <button type="submit" className="px-4 py-2 bg-[#D4AF37] text-black">Save chauffeur</button>
+                <button type="submit" disabled={savingDriver} className="px-4 py-2 bg-[#D4AF37] text-black disabled:opacity-60">
+                  {savingDriver ? 'Saving…' : 'Save chauffeur'}
+                </button>
               </form>
-              {drivers.map((driver) => (
-                <article key={driver.id} className="border border-[#D4AF37]/30 p-4 text-gray-300">
-                  <p className="text-white text-xl">{driver.name}</p>
-                  <p>{driver.phone}{driver.vehicle ? ` · ${driver.vehicle}` : ''}</p>
-                  <p className="text-gray-500">{driver.active === false ? 'Inactive' : 'Active'}</p>
-                </article>
-              ))}
+              <div className="space-y-4">
+                <h3 className="text-white text-xl">
+                  Saved chauffeurs ({drivers.length})
+                </h3>
+                {drivers.length === 0 && !savingDriver && (
+                  <p className="text-gray-400">
+                    No chauffeurs saved yet. Add a name, 10-digit phone, and 4–6 digit PIN above.
+                  </p>
+                )}
+                {drivers.map((driver) => (
+                  <article key={driver.id} className="border border-[#D4AF37]/30 p-4 text-gray-300">
+                    <p className="text-white text-xl">{driver.name}</p>
+                    <p>{driver.phone}{driver.vehicle ? ` · ${driver.vehicle}` : ''}</p>
+                    <p className="text-gray-500">{driver.active === false ? 'Inactive' : 'Active'}</p>
+                  </article>
+                ))}
+              </div>
             </div>
           )}
 
