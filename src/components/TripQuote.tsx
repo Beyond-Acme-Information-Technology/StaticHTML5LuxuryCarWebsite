@@ -92,6 +92,7 @@ interface TripQuoteProps {
   onChange: (fields: { pickup?: string; dropoff?: string; stops?: string[]; rideCategory?: string }) => void;
   onQuote: (quote: QuoteResult | null) => void;
   quote: QuoteResult | null;
+  requireAddresses?: boolean;
 }
 
 export default function TripQuote({
@@ -102,6 +103,7 @@ export default function TripQuote({
   onChange,
   onQuote,
   quote,
+  requireAddresses = true,
 }: TripQuoteProps) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -151,7 +153,7 @@ export default function TripQuote({
   return (
     <div className="space-y-6">
       <div>
-        <label className="block text-gray-300 mb-2">Who is riding? *</label>
+        <label className="block text-gray-300 mb-2">{requireAddresses ? 'Who is riding? *' : 'Who is riding?'}</label>
         <select
           value={rideCategory}
           onChange={(e) => {
@@ -176,7 +178,7 @@ export default function TripQuote({
       <div>
         <label className="block text-gray-300 mb-2 flex items-center gap-2">
           <MapPin size={18} className="text-[#D4AF37]" />
-          Pickup location *
+          {requireAddresses ? 'Pickup location *' : 'Pickup location'}
         </label>
         <AddressField
           value={pickup}
@@ -185,12 +187,14 @@ export default function TripQuote({
             setRoutes([]);
             onChange({ pickup: next });
           }}
-          required
+          required={requireAddresses}
           aria-label="Pickup location"
           placeholder="Start typing an address, hotel, or SFO"
         />
         <p className="text-gray-500 text-sm mt-2">
-          California addresses, airports, and hotels appear as you type. You can still enter any street address.
+          {requireAddresses
+            ? 'California addresses, airports, and hotels appear as you type. You can still enter any street address.'
+            : 'Optional. Add a route if you want a miles-and-price quote. You can still send a message without it.'}
         </p>
       </div>
       {stops.map((stop, index) => (
@@ -249,7 +253,7 @@ export default function TripQuote({
       <div>
         <label className="block text-gray-300 mb-2 flex items-center gap-2">
           <MapPin size={18} className="text-[#D4AF37]" />
-          Drop-off location *
+          {requireAddresses ? 'Drop-off location *' : 'Drop-off location'}
         </label>
         <AddressField
           value={dropoff}
@@ -258,7 +262,7 @@ export default function TripQuote({
             setRoutes([]);
             onChange({ dropoff: next });
           }}
-          required
+          required={requireAddresses}
           aria-label="Drop-off location"
           placeholder="Start typing the drop-off address"
         />
@@ -272,7 +276,11 @@ export default function TripQuote({
         {busy ? 'CALCULATING MILES…' : 'CALCULATE MILES AND PRICE'}
       </button>
       {!quote && !busy && (
-        <p className="text-gray-500 text-sm">This looks up driving miles and shows a price before you send the request.</p>
+        <p className="text-gray-500 text-sm">
+          {requireAddresses
+            ? 'This looks up driving miles and shows a price before you send the request.'
+            : 'Optional. If you add pickup and drop-off, this shows driving miles and a price.'}
+        </p>
       )}
       {error && <p className="text-red-300">{error}</p>}
       {routes.length > 1 && quote && (

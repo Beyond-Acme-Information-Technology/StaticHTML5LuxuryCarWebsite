@@ -43,12 +43,21 @@ export default function ContactUs() {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    if (!quote) {
-      setSendError('Calculate miles and price from pickup and drop-off before sending.');
-      return;
-    }
     setIsSending(true);
     setSendError(null);
+
+    const tripNotes = [
+      formData.pickup ? `Pickup: ${formData.pickup}` : '',
+      stops.length ? `Stops: ${stops.join(' → ')}` : '',
+      formData.dropoff ? `Dropoff: ${formData.dropoff}` : '',
+      quote
+        ? `Miles: ${quote.miles}\nQuote: $${(quote.totalCents / 100).toFixed(2)}\nPassenger type: ${quote.rideCategory}`
+        : formData.pickup || formData.dropoff
+          ? 'Miles: not calculated'
+          : '',
+    ]
+      .filter(Boolean)
+      .join('\n');
 
     try {
       await sendLead({
@@ -57,26 +66,19 @@ export default function ContactUs() {
         email: formData.email,
         phone: formData.phone,
         subject: formData.subject,
-        message: `${formData.message}
-
-Pickup: ${quote.pickup}
-Stops: ${quote.stops.join(' → ') || 'None'}
-Dropoff: ${quote.dropoff}
-Miles: ${quote.miles}
-Quote: $${(quote.totalCents / 100).toFixed(2)}
-Passenger type: ${quote.rideCategory}`,
+        message: tripNotes ? `${formData.message}\n\n${tripNotes}` : formData.message,
         honeypot,
         meta: {
-          pickup: quote.pickup,
-          dropoff: quote.dropoff,
-          stops: quote.stops,
-          rideCategory: quote.rideCategory,
-          miles: quote.miles,
-          quoteCents: quote.totalCents,
-          waitPerMinuteCents: quote.waitPerMinuteCents,
-          country: quote.country,
-          lineItems: quote.lineItems,
-          paymentStatus: 'unpaid',
+          pickup: formData.pickup || quote?.pickup || '',
+          dropoff: formData.dropoff || quote?.dropoff || '',
+          stops: quote?.stops || stops,
+          rideCategory: quote?.rideCategory || formData.rideCategory,
+          miles: quote?.miles,
+          quoteCents: quote?.totalCents,
+          waitPerMinuteCents: quote?.waitPerMinuteCents,
+          country: quote?.country,
+          lineItems: quote?.lineItems,
+          paymentStatus: quote ? 'unpaid' : undefined,
         },
       });
 
@@ -182,7 +184,10 @@ Passenger type: ${quote.rideCategory}`,
 
             {/* Contact Form */}
             <div>
-              <h2 className="text-3xl mb-8 text-[#D4AF37]">Send Us A Message</h2>
+              <h2 className="text-3xl mb-4 text-[#D4AF37]">Send Us A Message</h2>
+              <p className="text-gray-400 mb-8">
+                Name, email, and your note are enough. Pickup, drop-off, and Calculate miles are optional.
+              </p>
 
               <div className="bg-gradient-to-b from-[#1a1a1a] to-black border border-[#D4AF37]/20 p-8">
                 {submitted ? (
@@ -276,6 +281,7 @@ Passenger type: ${quote.rideCategory}`,
                         stops={stops}
                         rideCategory={formData.rideCategory}
                         quote={quote}
+                        requireAddresses={false}
                         onQuote={setQuote}
                         onChange={(fields) => {
                           setFormData((prev) => ({

@@ -31,6 +31,7 @@ export const VEHICLE_OPTIONS = [
   { name: 'Range Rover Autobiography', kind: 'Luxury SUV', seats: 6 },
   { name: 'Tesla Model S', kind: 'Electric luxury', seats: 4 },
   { name: 'Cadillac Escalade ESV', kind: 'Executive SUV', seats: 7 },
+  { name: 'Party Bus', kind: 'Nightlife / events', seats: 22 },
 ] as const;
 
 export const VEHICLE_TYPES = VEHICLE_OPTIONS.map((vehicle) => vehicle.name);
@@ -45,7 +46,7 @@ export const SERVICE_TYPES = [
   { id: 'airport', label: 'Airport Transfer', hint: 'SFO, SJC, or Oakland' },
   { id: 'point-to-point', label: 'Point to Point', hint: 'Address to address' },
   { id: 'hourly', label: 'Hourly / As Directed', hint: 'Chauffeur for the day' },
-  { id: 'event', label: 'Wedding / Event', hint: 'Ceremonies and parties' },
+  { id: 'event', label: 'Wedding / Event', hint: 'Ceremonies, parties, party bus' },
   { id: 'corporate', label: 'Corporate Travel', hint: 'Meetings and executives' },
 ] as const;
 

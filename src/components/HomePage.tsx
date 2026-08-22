@@ -13,9 +13,9 @@ export default function HomePage({ onNavigate }: HomePageProps) {
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           <ImageWithFallback
-            src="https://images.unsplash.com/photo-1563720360172-67b8f3dce741?w=1920&h=1080&fit=crop"
-            alt="Luxury car"
-            className="w-full h-full object-cover opacity-40"
+            src="https://images.unsplash.com/photo-1485291571150-772bcfc10da5?auto=format&fit=crop&w=2000&q=80"
+            alt="Black luxury chauffeur sedan at night"
+            className="w-full h-full object-cover opacity-45"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black"></div>
         </div>

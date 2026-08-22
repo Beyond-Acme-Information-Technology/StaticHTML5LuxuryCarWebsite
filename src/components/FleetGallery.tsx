@@ -13,7 +13,7 @@ export default function FleetGallery({ onNavigate }: FleetGalleryProps) {
       passengers: '3 Passengers',
       luggage: '3 Luggage',
       description: 'The pinnacle of luxury sedans, offering unmatched comfort and technology for executive travel.',
-      image: 'https://images.unsplash.com/photo-1728236436940-10b097998033?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtZXJjZWRlcyUyMGJlbnolMjBsdXh1cnl8ZW58MXx8fHwxNzYwNTMzNDIxfDA&ixlib=rb-4.1.0&q=80&w=1080',
+      image: 'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&w=1400&q=80',
       features: ['Leather Interior', 'Climate Control', 'WiFi', 'Premium Sound']
     },
     {
@@ -22,7 +22,7 @@ export default function FleetGallery({ onNavigate }: FleetGalleryProps) {
       passengers: '3 Passengers',
       luggage: '3 Luggage',
       description: 'German engineering excellence with sophisticated comfort and cutting-edge performance.',
-      image: 'https://images.unsplash.com/photo-1731142582229-e0ee70302c02?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxibXclMjBsdXh1cnklMjBzZWRhbnxlbnwxfHx8fDE3NjA1ODY2NjN8MA&ixlib=rb-4.1.0&q=80&w=1080',
+      image: 'https://images.unsplash.com/photo-1556189250-72ba954cfc2b?auto=format&fit=crop&w=1400&q=80',
       features: ['Massage Seats', 'Ambient Lighting', 'Entertainment System', 'Privacy Glass']
     },
     {
@@ -31,7 +31,7 @@ export default function FleetGallery({ onNavigate }: FleetGalleryProps) {
       passengers: '3 Passengers',
       luggage: '3 Luggage',
       description: 'Sophisticated design combined with advanced technology for the modern executive.',
-      image: 'https://images.unsplash.com/photo-1684155391823-15645c20d488?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhdWRpJTIwbHV4dXJ5JTIwY2FyfGVufDF8fHx8MTc2MDUzMzUzMXww&ixlib=rb-4.1.0&q=80&w=1080',
+      image: 'https://images.unsplash.com/photo-1606152421802-db97b9c7a11b?auto=format&fit=crop&w=1400&q=80',
       features: ['Adaptive Cruise', 'Quattro AWD', 'Virtual Cockpit', 'Heated Seats']
     },
     {
@@ -40,7 +40,7 @@ export default function FleetGallery({ onNavigate }: FleetGalleryProps) {
       passengers: '6 Passengers',
       luggage: '6 Luggage',
       description: 'The ultimate combination of luxury and capability, perfect for any terrain or occasion.',
-      image: 'https://images.unsplash.com/photo-1550523164-e0330d1775b2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxyYW5nZSUyMHJvdmVyJTIwbHV4dXJ5fGVufDF8fHx8MTc2MDUyODkwNHww&ixlib=rb-4.1.0&q=80&w=1080',
+      image: 'https://images.unsplash.com/photo-1581540222194-0def2adc6772?auto=format&fit=crop&w=1400&q=80',
       features: ['Terrain Response', 'Panoramic Roof', 'Premium Audio', 'Captain Seats']
     },
     {
@@ -49,7 +49,7 @@ export default function FleetGallery({ onNavigate }: FleetGalleryProps) {
       passengers: '4 Passengers',
       luggage: '4 Luggage',
       description: 'Cutting-edge electric performance with zero emissions and luxurious comfort.',
-      image: 'https://images.unsplash.com/photo-1510268887001-0a3346314bc2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0ZXNsYSUyMGx1eHVyeSUyMGVsZWN0cmljfGVufDF8fHx8MTc2MDU4NjY2NHww&ixlib=rb-4.1.0&q=80&w=1080',
+      image: 'https://images.unsplash.com/photo-1560958089-b8a1929cea89?auto=format&fit=crop&w=1400&q=80',
       features: ['Autopilot', 'Instant Torque', '17" Display', 'Supercharging']
     },
     {
@@ -58,8 +58,17 @@ export default function FleetGallery({ onNavigate }: FleetGalleryProps) {
       passengers: '7 Passengers',
       luggage: '8 Luggage',
       description: 'American luxury at its finest, with spacious interiors perfect for group travel.',
-      image: 'https://images.unsplash.com/photo-1758217209786-95458c5d30a7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxlc2NhbGFkZSUyMGx1eHVyeSUyMHN1dnxlbnwxfHx8fDE3NjA1ODY2NjR8MA&ixlib=rb-4.1.0&q=80&w=1080',
+      image: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1400&q=80',
       features: ['OLED Display', 'AKG Audio', 'Night Vision', 'Air Suspension']
+    },
+    {
+      name: 'Party Bus',
+      category: 'Nightlife / Events',
+      passengers: '22 Passengers',
+      luggage: 'Light bags',
+      description: 'Lights, sound, and room to celebrate. Ideal for birthdays, bachelor parties, concerts, and winery groups across the Bay Area.',
+      image: 'https://images.unsplash.com/photo-1527786356703-4b16e2c8cb27?auto=format&fit=crop&w=1400&q=80',
+      features: ['LED lighting', 'Sound system', 'Lounge seating', 'Chauffeur included']
     }
   ];
 
@@ -69,7 +78,7 @@ export default function FleetGallery({ onNavigate }: FleetGalleryProps) {
       <section className="py-20 px-4 text-center">
         <h1 className="text-5xl md:text-6xl mb-6 text-[#D4AF37]">Our Fleet</h1>
         <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-          Discover our meticulously curated collection of luxury vehicles. 
+          Discover our luxury sedans, SUVs, and a party bus for nights out. 
           Each vehicle is maintained to the highest standards and equipped with premium amenities.
         </p>
       </section>

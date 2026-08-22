@@ -11,37 +11,37 @@ export default function Services({ onNavigate }: ServicesProps) {
       icon: <Briefcase size={40} />,
       title: 'Corporate Travel',
       description: 'Professional chauffeur services for business executives, board meetings, and corporate events. Punctual, discreet, and reliable.',
-      image: 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjaGF1ZmZldXIlMjBzZXJ2aWNlfGVufDF8fHx8MTc2MDU4NjYyOXww&ixlib=rb-4.1.0&q=80&w=1080'
+      image: 'https://images.unsplash.com/photo-1485291571150-772bcfc10da5?auto=format&fit=crop&w=1400&q=80'
     },
     {
       icon: <Plane size={40} />,
       title: 'Airport Transfers',
       description: 'Seamless transportation to and from all major airports. Flight tracking, meet & greet service, and luggage assistance included.',
-      image: 'https://images.unsplash.com/photo-1530521954074-e64f6810b32d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhaXJwb3J0JTIwdHJhbnNmZXJ8ZW58MXx8fHwxNzYwNDg3MDEyfDA&ixlib=rb-4.1.0&q=80&w=1080'
+      image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1400&q=80'
     },
     {
       icon: <Heart size={40} />,
       title: 'Special Events',
       description: 'Make your special day unforgettable with our wedding and event transportation services. Elegant vehicles for memorable moments.',
-      image: 'https://images.unsplash.com/photo-1618409699341-26cfaec26de8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3ZWRkaW5nJTIwbGltb3VzaW5lfGVufDF8fHx8MTc2MDU4NjYzMHww&ixlib=rb-4.1.0&q=80&w=1080'
+      image: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1400&q=80'
     },
     {
       icon: <Users size={40} />,
       title: 'Group Transportation',
-      description: 'Spacious luxury SUVs and vans for group travel. Perfect for corporate outings, family trips, or group celebrations.',
-      image: 'https://images.unsplash.com/photo-1739950075618-f9ae2f90b0c0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBTVVYlMjBibGFja3xlbnwxfHx8fDE3NjA1ODY2Mjl8MA&ixlib=rb-4.1.0&q=80&w=1080'
+      description: 'Luxury SUVs and a party bus for birthdays, concerts, wineries, and corporate outings. One chauffeur, everyone together.',
+      image: 'https://images.unsplash.com/photo-1527786356703-4b16e2c8cb27?auto=format&fit=crop&w=1400&q=80'
     },
     {
       icon: <Clock size={40} />,
       title: 'Hourly Service',
       description: 'Flexible hourly chauffeur service for multiple stops, shopping excursions, or full-day business needs. Total convenience and control.',
-      image: 'https://images.unsplash.com/photo-1547731269-e4073e054f12?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBzZWRhbiUyMGludGVyaW9yfGVufDF8fHx8MTc2MDQ4ODc5N3ww&ixlib=rb-4.1.0&q=80&w=1080'
+      image: 'https://images.unsplash.com/photo-1547731269-e4073e054f12?auto=format&fit=crop&w=1400&q=80'
     },
     {
       icon: <Car size={40} />,
       title: 'Private Chauffeur',
       description: 'Dedicated chauffeur service for long-term arrangements. Your personal driver available when you need them.',
-      image: 'https://images.unsplash.com/photo-1760465066570-6c2261f851e6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBjYXIlMjBmbGVldHxlbnwxfHx8fDE3NjA1ODY2MzF8MA&ixlib=rb-4.1.0&q=80&w=1080'
+      image: 'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&w=1400&q=80'
     }
   ];
 
