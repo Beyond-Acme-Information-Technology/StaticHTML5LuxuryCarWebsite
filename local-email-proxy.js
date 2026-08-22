@@ -91,8 +91,9 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
-    if (parsed.pathname === '/api/client-leads' && req.method === 'GET') {
-      await clientLeads({ method: 'GET', body: {}, headers: req.headers }, proxyRes);
+    if ((parsed.pathname === '/api/client-leads') && (req.method === 'GET' || req.method === 'PATCH')) {
+      const body = req.method === 'GET' ? {} : await parseJSONBody(req);
+      await clientLeads({ method: req.method, body, headers: req.headers }, proxyRes);
       return;
     }
   } catch (err) {

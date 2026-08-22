@@ -13,6 +13,7 @@ import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfService from './components/TermsOfService';
 import StaffInbox from './components/StaffInbox';
 import ClientPortal from './components/ClientPortal';
+import { CLIENT_AUTH_EVENT, hasClientSession } from './utils/clientSession';
 
 const VALID_PAGES = ['home', 'services', 'fleet', 'book', 'contact', 'jobs', 'privacy', 'login', 'terms', 'staff', 'account'] as const;
 type PageId = (typeof VALID_PAGES)[number];
@@ -25,6 +26,7 @@ function pageFromHash(): PageId {
 export default function App() {
   const [showVideo, setShowVideo] = useState(true);
   const [currentPage, setCurrentPage] = useState<PageId>('home');
+  const [clientSignedIn, setClientSignedIn] = useState(false);
 
   useEffect(() => {
     const hasSeenVideo = sessionStorage.getItem('hasSeenVideo');
@@ -32,10 +34,18 @@ export default function App() {
       setShowVideo(false);
     }
     setCurrentPage(pageFromHash());
+    setClientSignedIn(hasClientSession());
 
     const onHashChange = () => setCurrentPage(pageFromHash());
+    const onAuth = () => setClientSignedIn(hasClientSession());
     window.addEventListener('hashchange', onHashChange);
-    return () => window.removeEventListener('hashchange', onHashChange);
+    window.addEventListener(CLIENT_AUTH_EVENT, onAuth);
+    window.addEventListener('storage', onAuth);
+    return () => {
+      window.removeEventListener('hashchange', onHashChange);
+      window.removeEventListener(CLIENT_AUTH_EVENT, onAuth);
+      window.removeEventListener('storage', onAuth);
+    };
   }, []);
 
   const handleSkipVideo = () => {
@@ -91,7 +101,7 @@ export default function App() {
 
   return (
     <div className="bg-black min-h-screen">
-      <Navigation currentPage={currentPage} onNavigate={handleNavigate} />
+      <Navigation currentPage={currentPage} onNavigate={handleNavigate} clientSignedIn={clientSignedIn} />
       <main>
         {renderPage()}
       </main>

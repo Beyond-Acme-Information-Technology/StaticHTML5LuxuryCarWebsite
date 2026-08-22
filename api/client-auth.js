@@ -4,6 +4,7 @@ const {
   hasClientStore,
   requestOtp,
   verifyOtp,
+  logoutSession,
 } = require('../lib/client-auth');
 
 module.exports = async (req, res) => {
@@ -31,10 +32,21 @@ module.exports = async (req, res) => {
 
     if (body.action === 'verify') {
       const session = await verifyOtp(body.email, body.code);
-      return res.status(200).json({ ok: true, token: session.token, email: session.email });
+      return res.status(200).json({
+        ok: true,
+        token: session.token,
+        email: session.email,
+        expiresAt: session.expiresAt,
+      });
     }
 
-    return res.status(400).json({ error: 'action must be request or verify' });
+    if (body.action === 'logout') {
+      const header = req.headers.authorization || req.headers.Authorization || '';
+      await logoutSession(String(header).replace(/^Bearer\s+/i, '').trim());
+      return res.status(200).json({ ok: true });
+    }
+
+    return res.status(400).json({ error: 'action must be request, verify, or logout' });
   } catch (err) {
     const status = err.status || 400;
     console.error('client-auth:', err.message);

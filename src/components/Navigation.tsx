@@ -2,14 +2,17 @@ import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { trackEvent } from '@/utils/analytics';
 import logo from 'figma:asset/c9df9a6d3fc84e369767220efaa1d920ab94cff6.png';
+import { hasClientSession } from '@/utils/clientSession';
 
 interface NavigationProps {
   currentPage: string;
   onNavigate: (page: string) => void;
+  clientSignedIn?: boolean;
 }
 
-export default function Navigation({ currentPage, onNavigate }: NavigationProps) {
+export default function Navigation({ currentPage, onNavigate, clientSignedIn = false }: NavigationProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const signedIn = clientSignedIn || hasClientSession();
 
   const navItems = [
     { id: 'home', label: 'Home' },
@@ -18,13 +21,14 @@ export default function Navigation({ currentPage, onNavigate }: NavigationProps)
     { id: 'book', label: 'Book Online' },
     { id: 'contact', label: 'Contact Us' },
     { id: 'jobs', label: 'Jobs' },
-    { id: 'login', label: 'Login' },
+    { id: signedIn ? 'account' : 'login', label: signedIn ? 'My Account' : 'Login' },
   ];
 
   const handleNavClick = (pageId: string) => {
-    onNavigate(pageId);
+    const next = pageId === 'login' && hasClientSession() ? 'account' : pageId;
+    onNavigate(next);
     setIsMenuOpen(false);
-    if (pageId === 'login') {
+    if (pageId === 'login' || pageId === 'account') {
       trackEvent('login_click', { category: 'navigation' });
     }
   };
@@ -49,7 +53,7 @@ export default function Navigation({ currentPage, onNavigate }: NavigationProps)
                 key={item.id}
                 onClick={() => handleNavClick(item.id)}
                 className={`transition-colors duration-300 ${
-                  currentPage === item.id
+                  currentPage === item.id || (item.id === 'account' && currentPage === 'login')
                     ? 'text-[#D4AF37]'
                     : 'text-white hover:text-[#D4AF37]'
                 }`}

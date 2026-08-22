@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Lock, Mail, User, AlertCircle } from 'lucide-react';
 import { COMPANY } from '@/config/company';
 import { apiUrl, normalizeStaffToken } from '@/utils/siteUrl';
+import { hasClientSession, saveClientSession } from '@/utils/clientSession';
 
 interface LoginPortalProps {
   onNavigate?: (page: string) => void;
@@ -18,6 +19,12 @@ export default function LoginPortal({ onNavigate }: LoginPortalProps) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [staffDenied, setStaffDenied] = useState(false);
+
+  useEffect(() => {
+    if (hasClientSession()) {
+      onNavigate?.('account');
+    }
+  }, [onNavigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLoginData({
@@ -77,8 +84,7 @@ export default function LoginPortal({ onNavigate }: LoginPortalProps) {
       if (!res.ok) {
         throw new Error(json.error || 'That code did not work');
       }
-      sessionStorage.setItem('clientToken', json.token);
-      sessionStorage.setItem('clientEmail', json.email);
+      saveClientSession(json.token, json.email);
       onNavigate?.('account');
     } catch (err: any) {
       setError(err.message || 'Login failed');

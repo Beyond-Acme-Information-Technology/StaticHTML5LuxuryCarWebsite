@@ -176,6 +176,7 @@ module.exports = async (req, res) => {
         phone: payload.phone || '',
         subject,
         message: text,
+        meta: payload.meta || {},
       });
     } catch (storeErr) {
       console.error('Lead store failed:', storeErr.message);

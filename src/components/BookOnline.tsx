@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Calendar, Clock, MapPin, Car, User, Mail, Phone, Plane } from 'lucide-react';
 import { AIRPORTS, COMPANY, SERVICE_TYPES, VEHICLE_TYPES } from '@/config/company';
 import { sendLead } from '@/utils/sendLead';
+import { getClientEmail, getClientProfilePrefill, hasClientSession } from '@/utils/clientSession';
 
 export default function BookOnline() {
   const [formData, setFormData] = useState({
@@ -29,10 +30,14 @@ export default function BookOnline() {
     const params = new URLSearchParams(query);
     const airport = params.get('airport') || '';
     const service = params.get('service') || '';
+    const prefill = getClientProfilePrefill();
     setFormData((prev) => ({
       ...prev,
       airport: AIRPORTS.some((item) => item.id === airport) ? airport : prev.airport,
       serviceType: SERVICE_TYPES.some((item) => item.id === service) ? service : airport ? 'airport' : prev.serviceType,
+      fullName: prev.fullName || prefill.name || '',
+      email: prev.email || getClientEmail() || '',
+      phone: prev.phone || prefill.phone || '',
     }));
   }, []);
 
@@ -59,6 +64,17 @@ export default function BookOnline() {
         phone: formData.phone,
         subject: 'Booking Request',
         honeypot,
+        meta: {
+          pickup: formData.pickupLocation,
+          dropoff: formData.dropoffLocation,
+          date: formData.date,
+          time: formData.time,
+          service: serviceLabel,
+          vehicle: formData.vehicleType,
+          passengers: formData.passengers,
+          airport: airportLabel,
+          flight: formData.flightNumber,
+        },
         message: `Booking details:
 Name: ${formData.fullName}
 Email: ${formData.email}
@@ -78,9 +94,9 @@ Special Requests: ${formData.specialRequests || 'None'}`,
       setTimeout(() => {
         setSubmitted(false);
         setFormData({
-          fullName: '',
-          email: '',
-          phone: '',
+          fullName: hasClientSession() ? formData.fullName : '',
+          email: hasClientSession() ? formData.email : '',
+          phone: hasClientSession() ? formData.phone : '',
           date: '',
           time: '',
           serviceType: 'point-to-point',

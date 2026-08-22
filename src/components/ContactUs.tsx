@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Mail, Phone, MapPin, Clock, Send } from 'lucide-react';
 import { COMPANY, CONTACT_SUBJECTS, FULL_ADDRESS, MAPS_EMBED_SRC } from '@/config/company';
 import { sendLead } from '@/utils/sendLead';
+import { getClientEmail, getClientProfilePrefill } from '@/utils/clientSession';
 
 export default function ContactUs() {
   const [formData, setFormData] = useState({
@@ -16,6 +17,16 @@ export default function ContactUs() {
   const [isSending, setIsSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
   const [honeypot, setHoneypot] = useState('');
+
+  useEffect(() => {
+    const prefill = getClientProfilePrefill();
+    setFormData((prev) => ({
+      ...prev,
+      name: prev.name || prefill.name || '',
+      email: prev.email || getClientEmail() || '',
+      phone: prev.phone || prefill.phone || '',
+    }));
+  }, []);
 
   const handleChange = (e: any) => {
     setFormData({

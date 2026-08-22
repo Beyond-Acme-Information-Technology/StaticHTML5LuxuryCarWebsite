@@ -9,6 +9,7 @@ export type LeadPayload = {
   type?: 'contact' | 'booking' | 'job';
   position?: string;
   honeypot?: string;
+  meta?: Record<string, string>;
 };
 
 export async function sendLead(payload: LeadPayload): Promise<{ ok: boolean; provider?: string }> {

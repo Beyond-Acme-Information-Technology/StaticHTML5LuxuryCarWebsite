@@ -51,3 +51,15 @@ revoke all on table client_otps from anon, authenticated;
 revoke all on table client_sessions from anon, authenticated;
 grant all on table client_otps to service_role;
 grant all on table client_sessions to service_role;
+
+create table if not exists client_profiles (
+  email text primary key,
+  name text,
+  phone text,
+  notes text,
+  updated_at timestamptz not null default now()
+);
+
+alter table client_profiles enable row level security;
+revoke all on table client_profiles from anon, authenticated;
+grant all on table client_profiles to service_role;
