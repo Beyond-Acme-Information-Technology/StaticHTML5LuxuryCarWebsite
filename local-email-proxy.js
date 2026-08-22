@@ -95,7 +95,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (parsed.pathname === '/api/places' && req.method === 'GET') {
-      const handler = require('./api/places');
+      const handler = require('./api/quote');
       await handler({ method: 'GET', query: parsed.query, url: req.url, headers: req.headers }, proxyRes);
       return;
     }
@@ -124,13 +124,26 @@ const server = http.createServer(async (req, res) => {
       '/api/pay': './api/pay',
       '/api/staff-booking': './api/staff-booking',
       '/api/stripe-confirm': './api/stripe-confirm',
-      '/api/drivers': './api/drivers',
-      '/api/driver-auth': './api/driver-auth',
-      '/api/driver-trip': './api/driver-trip',
     };
-    if (parsed.pathname === '/api/trip-track' && req.method === 'GET') {
-      const handler = require('./api/trip-track');
-      await handler({ method: 'GET', query: parsed.query, url: req.url, headers: req.headers }, proxyRes);
+    const chauffeurRoutes = {
+      '/api/drivers': 'drivers',
+      '/api/driver-auth': 'auth',
+      '/api/driver-trip': 'trip',
+      '/api/trip-track': 'track',
+    };
+    if (chauffeurRoutes[parsed.pathname]) {
+      const handler = require('./api/chauffeur');
+      const body = req.method === 'GET' ? {} : await parseJSONBody(req);
+      await handler(
+        {
+          method: req.method,
+          query: { ...parsed.query, route: chauffeurRoutes[parsed.pathname] },
+          url: req.url,
+          headers: req.headers,
+          body,
+        },
+        proxyRes
+      );
       return;
     }
     if (extra[parsed.pathname]) {

@@ -1,4 +1,11 @@
 {
   "buildCommand": "npm run build",
-  "outputDirectory": "build"
+  "outputDirectory": "build",
+  "rewrites": [
+    { "source": "/api/places", "destination": "/api/quote" },
+    { "source": "/api/drivers", "destination": "/api/chauffeur?route=drivers" },
+    { "source": "/api/driver-auth", "destination": "/api/chauffeur?route=auth" },
+    { "source": "/api/driver-trip", "destination": "/api/chauffeur?route=trip" },
+    { "source": "/api/trip-track", "destination": "/api/chauffeur?route=track" }
+  ]
 }

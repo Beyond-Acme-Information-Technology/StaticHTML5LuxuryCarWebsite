@@ -1,11 +1,15 @@
 const { applyCors } = require('../lib/cors');
 const { tripDistance } = require('../lib/distance');
 const { rateFor, computeQuote, CATEGORIES } = require('../lib/pricing');
+const { handlePlaces } = require('../lib/places-handler');
 
 module.exports = async (req, res) => {
   if (applyCors(req, res)) return;
+  if (req.method === 'GET') {
+    return handlePlaces(req, res);
+  }
   if (req.method !== 'POST') {
-    res.setHeader('Allow', 'POST');
+    res.setHeader('Allow', 'GET, POST');
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
