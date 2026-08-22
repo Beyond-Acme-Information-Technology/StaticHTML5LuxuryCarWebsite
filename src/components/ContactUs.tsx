@@ -3,20 +3,26 @@ import { Mail, Phone, MapPin, Clock, Send } from 'lucide-react';
 import { COMPANY, CONTACT_SUBJECTS, FULL_ADDRESS, MAPS_EMBED_SRC } from '@/config/company';
 import { sendLead } from '@/utils/sendLead';
 import { getClientEmail, getClientProfilePrefill } from '@/utils/clientSession';
+import TripQuote, { QuoteResult } from '@/components/TripQuote';
 
 export default function ContactUs() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
-    subject: '',
-    message: ''
+    subject: 'booking',
+    message: '',
+    pickup: '',
+    dropoff: '',
+    rideCategory: 'regular',
   });
 
   const [submitted, setSubmitted] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
   const [honeypot, setHoneypot] = useState('');
+  const [stops, setStops] = useState<string[]>([]);
+  const [quote, setQuote] = useState<QuoteResult | null>(null);
 
   useEffect(() => {
     const prefill = getClientProfilePrefill();
@@ -37,25 +43,59 @@ export default function ContactUs() {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
+    if (!quote) {
+      setSendError('Calculate miles and price from pickup and drop-off before sending.');
+      return;
+    }
     setIsSending(true);
     setSendError(null);
 
     try {
       await sendLead({
-        type: 'contact',
+        type: formData.subject === 'feedback' ? 'contact' : 'booking',
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
         subject: formData.subject,
-        message: formData.message,
+        message: `${formData.message}
+
+Pickup: ${quote.pickup}
+Stops: ${quote.stops.join(' → ') || 'None'}
+Dropoff: ${quote.dropoff}
+Miles: ${quote.miles}
+Quote: $${(quote.totalCents / 100).toFixed(2)}
+Passenger type: ${quote.rideCategory}`,
         honeypot,
+        meta: {
+          pickup: quote.pickup,
+          dropoff: quote.dropoff,
+          stops: quote.stops,
+          rideCategory: quote.rideCategory,
+          miles: quote.miles,
+          quoteCents: quote.totalCents,
+          waitPerMinuteCents: quote.waitPerMinuteCents,
+          country: quote.country,
+          lineItems: quote.lineItems,
+          paymentStatus: 'unpaid',
+        },
       });
 
       setSubmitted(true);
 
       setTimeout(() => {
         setSubmitted(false);
-        setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          subject: 'booking',
+          message: '',
+          pickup: '',
+          dropoff: '',
+          rideCategory: 'regular',
+        });
+        setStops([]);
+        setQuote(null);
       }, 4000);
     } catch (err: any) {
       console.error('Send failed', err);
@@ -230,8 +270,25 @@ export default function ContactUs() {
                         </select>
                       </div>
 
+                      <TripQuote
+                        pickup={formData.pickup}
+                        dropoff={formData.dropoff}
+                        stops={stops}
+                        rideCategory={formData.rideCategory}
+                        quote={quote}
+                        onQuote={setQuote}
+                        onChange={(fields) => {
+                          setFormData((prev) => ({
+                            ...prev,
+                            pickup: fields.pickup ?? prev.pickup,
+                            dropoff: fields.dropoff ?? prev.dropoff,
+                            rideCategory: fields.rideCategory ?? prev.rideCategory,
+                          }));
+                          if (fields.stops) setStops(fields.stops);
+                        }}
+                      />
+
                       <div>
-                        <label className="block text-gray-300 mb-2">Message *</label>
                         <textarea
                           name="message"
                           value={formData.message}

@@ -22,6 +22,10 @@ type Ride = {
   service: string;
   vehicle: string;
   past: boolean;
+  miles?: number;
+  quoteCents?: number;
+  paymentStatus?: string;
+  rideCategory?: string;
 };
 
 type Message = {
@@ -46,8 +50,10 @@ interface ClientPortalProps {
 
 function statusLabel(status: string) {
   if (status === 'confirmed') return 'Confirmed';
+  if (status === 'accepted') return 'Accepted — pay to confirm';
   if (status === 'contacted') return 'In review';
   if (status === 'closed') return 'Completed';
+  if (status === 'cancelled') return 'Cancelled';
   return 'Requested';
 }
 
@@ -60,6 +66,7 @@ export default function ClientPortal({ onNavigate }: ClientPortalProps) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [payingId, setPayingId] = useState<string | null>(null);
 
   async function load() {
     const token = getClientToken();
@@ -70,6 +77,14 @@ export default function ClientPortal({ onNavigate }: ClientPortalProps) {
     setLoading(true);
     setError(null);
     try {
+      const paid = new URLSearchParams(window.location.hash.split('?')[1] || '').get('paid');
+      if (paid) {
+        await fetch(apiUrl('/api/stripe-confirm'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId: paid }),
+        });
+      }
       const res = await fetch(apiUrl('/api/client-leads'), {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -124,6 +139,29 @@ export default function ClientPortal({ onNavigate }: ClientPortalProps) {
     }
     clearClientSession();
     onNavigate?.('login');
+  }
+
+  async function pay(leadId: string) {
+    const token = getClientToken();
+    if (!token) return;
+    setPayingId(leadId);
+    setError(null);
+    try {
+      const res = await fetch(apiUrl('/api/pay'), {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ leadId }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json.error || 'Could not start payment');
+      window.location.href = json.url;
+    } catch (err: any) {
+      setError(err.message || 'Could not start payment');
+      setPayingId(null);
+    }
   }
 
   async function saveProfile(e: React.FormEvent) {
@@ -226,7 +264,7 @@ export default function ClientPortal({ onNavigate }: ClientPortalProps) {
               <article className="md:col-span-2 bg-[#111] border border-[#D4AF37]/30 p-6">
                 <h2 className="text-2xl text-[#D4AF37] mb-4">Next ride</h2>
                 {nextRide ? (
-                  <RideCard ride={nextRide} />
+                  <RideCard ride={nextRide} onPay={pay} payingId={payingId} />
                 ) : (
                   <p className="text-gray-300">
                     No upcoming trips yet. Book a ride and it will appear here after you submit the form.
@@ -258,7 +296,7 @@ export default function ClientPortal({ onNavigate }: ClientPortalProps) {
                 )}
                 <div className="space-y-6">
                   {upcoming.map((ride) => (
-                    <RideCard key={ride.id} ride={ride} />
+                    <RideCard key={ride.id} ride={ride} onPay={pay} payingId={payingId} />
                   ))}
                 </div>
               </section>
@@ -269,7 +307,7 @@ export default function ClientPortal({ onNavigate }: ClientPortalProps) {
                 )}
                 <div className="space-y-6">
                   {past.map((ride) => (
-                    <RideCard key={ride.id} ride={ride} />
+                    <RideCard key={ride.id} ride={ride} onPay={pay} payingId={payingId} />
                   ))}
                 </div>
               </section>
@@ -352,18 +390,42 @@ export default function ClientPortal({ onNavigate }: ClientPortalProps) {
   );
 }
 
-function RideCard({ ride }: { ride: Ride }) {
+function RideCard({
+  ride,
+  onPay,
+  payingId,
+}: {
+  ride: Ride;
+  onPay: (id: string) => void;
+  payingId: string | null;
+}) {
+  const due = ride.status === 'accepted' || ride.paymentStatus === 'extra_due';
   return (
     <article className="bg-[#111] border border-[#D4AF37]/30 p-6">
       <div className="flex flex-wrap gap-3 mb-3">
         <span className="px-3 py-1 bg-[#D4AF37] text-black text-sm">{statusLabel(ride.status)}</span>
+        {ride.rideCategory && <span className="text-gray-400">{ride.rideCategory.replace(/_/g, ' ')}</span>}
         {ride.service && <span className="text-gray-400">{ride.service}</span>}
       </div>
       <h3 className="text-2xl text-white mb-2">
         {ride.pickup && ride.dropoff ? `${ride.pickup} → ${ride.dropoff}` : ride.subject || 'Ride request'}
       </h3>
       <p className="text-gray-400 mb-2">{ride.when || (ride.createdAt ? new Date(ride.createdAt).toLocaleString() : '')}</p>
+      {ride.miles ? <p className="text-gray-300">{ride.miles} miles</p> : null}
+      {ride.quoteCents ? (
+        <p className="text-white text-xl my-2">${(Number(ride.quoteCents) / 100).toFixed(2)}</p>
+      ) : null}
       {ride.vehicle && <p className="text-gray-300">Vehicle: {ride.vehicle}</p>}
+      {due && (
+        <button
+          type="button"
+          onClick={() => onPay(ride.id)}
+          disabled={payingId === ride.id}
+          className="mt-4 px-5 py-3 bg-[#D4AF37] text-black hover:bg-[#B4941F] disabled:opacity-60"
+        >
+          {payingId === ride.id ? 'Opening Stripe…' : 'Pay with Stripe'}
+        </button>
+      )}
     </article>
   );
 }

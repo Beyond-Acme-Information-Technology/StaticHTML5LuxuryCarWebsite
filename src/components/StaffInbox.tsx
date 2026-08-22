@@ -12,9 +12,21 @@ type Lead = {
   phone: string;
   subject: string;
   message: string;
+  meta?: {
+    pickup?: string;
+    dropoff?: string;
+    miles?: number;
+    quoteCents?: number;
+    paymentStatus?: string;
+    rideCategory?: string;
+    waitPerMinuteCents?: number;
+    paymentIntentId?: string;
+    checkoutUrl?: string;
+    stops?: string[];
+  };
 };
 
-const STATUSES = ['new', 'contacted', 'confirmed', 'closed'] as const;
+const STATUSES = ['new', 'contacted', 'accepted', 'confirmed', 'cancelled', 'closed'] as const;
 
 interface StaffInboxProps {
   onNavigate?: (page: string) => void;
@@ -24,6 +36,9 @@ export default function StaffInbox({ onNavigate }: StaffInboxProps) {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState<'inbox' | 'rates'>('inbox');
+  const [rates, setRates] = useState<any[]>([]);
+  const [surcharge, setSurcharge] = useState<Record<string, { minutes: string; amount: string; reason: string }>>({});
   const token = typeof window !== 'undefined' ? sessionStorage.getItem('staffToken') : null;
 
   async function load() {
@@ -43,6 +58,11 @@ export default function StaffInbox({ onNavigate }: StaffInboxProps) {
         throw new Error(json.error || `Could not load inbox (${res.status})`);
       }
       setLeads(json.leads || []);
+      const ratesRes = await fetch(apiUrl('/api/staff-booking'), {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const ratesJson = await ratesRes.json().catch(() => ({}));
+      if (ratesRes.ok) setRates(ratesJson.rates || []);
     } catch (err: any) {
       setError(err.message || 'Could not load inbox');
     } finally {
@@ -67,6 +87,27 @@ export default function StaffInbox({ onNavigate }: StaffInboxProps) {
     if (res.ok) {
       setLeads((current) => current.map((lead) => (lead.id === id ? { ...lead, status } : lead)));
     }
+  }
+
+  async function bookingAction(id: string, action: string, extra: Record<string, unknown> = {}) {
+    if (!token) return;
+    const res = await fetch(apiUrl('/api/staff-booking'), {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ id, action, ...extra }),
+    });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      setError(json.error || 'Staff action failed');
+      return;
+    }
+    if (json.lead) {
+      setLeads((current) => current.map((lead) => (lead.id === id ? json.lead : lead)));
+    }
+    if (json.rates) setRates(json.rates);
   }
 
   function logout() {
@@ -102,16 +143,81 @@ export default function StaffInbox({ onNavigate }: StaffInboxProps) {
             </div>
           </div>
 
+          <div className="flex gap-2 mb-8">
+            <button
+              type="button"
+              className={`px-4 py-2 ${tab === 'inbox' ? 'bg-[#D4AF37] text-black' : 'text-gray-300'}`}
+              onClick={() => setTab('inbox')}
+            >
+              Inbox
+            </button>
+            <button
+              type="button"
+              className={`px-4 py-2 ${tab === 'rates' ? 'bg-[#D4AF37] text-black' : 'text-gray-300'}`}
+              onClick={() => setTab('rates')}
+            >
+              Per-mile rates
+            </button>
+          </div>
+
           {error && (
             <div className="mb-6 p-4 border border-red-500 text-red-200">{error}</div>
           )}
 
-          {!loading && !error && leads.length === 0 && (
+          {tab === 'rates' && (
+            <div className="space-y-6">
+              <p className="text-gray-300">
+                Enter dollar amounts. Country is the ISO code from the pickup address (US, CA, GB).
+                Suggested US start: regular $4.50/mi, medical $5.25/mi, patient+equipment $6.50/mi.
+              </p>
+              {rates.map((rate) => (
+                <form
+                  key={`${rate.country}-${rate.rideCategory}`}
+                  className="bg-[#111] border border-[#D4AF37]/30 p-6 grid md:grid-cols-5 gap-4 items-end"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    bookingAction('', 'save-rate', {
+                      country: rate.country,
+                      rideCategory: rate.rideCategory,
+                      baseCents: Math.round(Number((e.currentTarget.elements.namedItem('base') as HTMLInputElement).value) * 100),
+                      perMileCents: Math.round(Number((e.currentTarget.elements.namedItem('mile') as HTMLInputElement).value) * 100),
+                      perStopCents: Math.round(Number((e.currentTarget.elements.namedItem('stop') as HTMLInputElement).value) * 100),
+                      waitPerMinuteCents: Math.round(Number((e.currentTarget.elements.namedItem('wait') as HTMLInputElement).value) * 100),
+                    });
+                  }}
+                >
+                  <p className="md:col-span-5 text-[#D4AF37]">
+                    {rate.country} · {String(rate.rideCategory).replace(/_/g, ' ')}
+                  </p>
+                  <label className="text-sm text-gray-400">
+                    Base $
+                    <input name="base" defaultValue={(rate.baseCents / 100).toFixed(2)} className="w-full bg-black border border-[#D4AF37]/30 px-3 py-2 text-white mt-1" />
+                  </label>
+                  <label className="text-sm text-gray-400">
+                    Per mile $
+                    <input name="mile" defaultValue={(rate.perMileCents / 100).toFixed(2)} className="w-full bg-black border border-[#D4AF37]/30 px-3 py-2 text-white mt-1" />
+                  </label>
+                  <label className="text-sm text-gray-400">
+                    Per stop $
+                    <input name="stop" defaultValue={(rate.perStopCents / 100).toFixed(2)} className="w-full bg-black border border-[#D4AF37]/30 px-3 py-2 text-white mt-1" />
+                  </label>
+                  <label className="text-sm text-gray-400">
+                    Wait / min $
+                    <input name="wait" defaultValue={(rate.waitPerMinuteCents / 100).toFixed(2)} className="w-full bg-black border border-[#D4AF37]/30 px-3 py-2 text-white mt-1" />
+                  </label>
+                  <button type="submit" className="px-4 py-2 bg-[#D4AF37] text-black">Save</button>
+                </form>
+              ))}
+            </div>
+          )}
+
+          {tab === 'inbox' && !loading && !error && leads.length === 0 && (
             <p className="text-gray-300 text-lg">
               No requests yet. Submit a Contact, Booking, or Jobs form on the website, then click Refresh.
             </p>
           )}
 
+          {tab === 'inbox' && (
           <div className="space-y-8">
             {leads.map((lead) => (
               <article
@@ -188,9 +294,101 @@ export default function StaffInbox({ onNavigate }: StaffInboxProps) {
                     ))}
                   </div>
                 </div>
+
+                {lead.meta?.quoteCents ? (
+                  <div className="mt-6 border-t border-[#D4AF37]/20 pt-6 space-y-3">
+                    <p className="text-white">
+                      Quote ${(Number(lead.meta.quoteCents) / 100).toFixed(2)} · {lead.meta.miles || '?'} miles
+                      {lead.meta.pickup ? ` · ${lead.meta.pickup} → ${lead.meta.dropoff}` : ''}
+                    </p>
+                    {lead.status === 'new' || lead.status === 'contacted' ? (
+                      <button
+                        type="button"
+                        className="px-5 py-3 bg-[#D4AF37] text-black"
+                        onClick={() => bookingAction(lead.id, 'accept')}
+                      >
+                        Accept quote (email Stripe pay link)
+                      </button>
+                    ) : null}
+                    {lead.status === 'confirmed' && lead.meta.paymentIntentId ? (
+                      <button
+                        type="button"
+                        className="px-5 py-3 border border-[#D4AF37] text-[#D4AF37]"
+                        onClick={() => bookingAction(lead.id, 'refund')}
+                      >
+                        Cancel and refund Stripe
+                      </button>
+                    ) : null}
+                    {(lead.status === 'accepted' || lead.status === 'confirmed') && (
+                      <div className="flex flex-wrap gap-2 items-end">
+                        <input
+                          placeholder="Wait minutes"
+                          className="bg-black border border-[#D4AF37]/30 px-3 py-2 text-white"
+                          value={surcharge[lead.id]?.minutes || ''}
+                          onChange={(e) =>
+                            setSurcharge((cur) => ({
+                              ...cur,
+                              [lead.id]: { minutes: e.target.value, amount: cur[lead.id]?.amount || '', reason: cur[lead.id]?.reason || '' },
+                            }))
+                          }
+                        />
+                        <input
+                          placeholder="Or amount USD"
+                          className="bg-black border border-[#D4AF37]/30 px-3 py-2 text-white"
+                          value={surcharge[lead.id]?.amount || ''}
+                          onChange={(e) =>
+                            setSurcharge((cur) => ({
+                              ...cur,
+                              [lead.id]: { amount: e.target.value, minutes: cur[lead.id]?.minutes || '', reason: cur[lead.id]?.reason || '' },
+                            }))
+                          }
+                        />
+                        <input
+                          placeholder="Reason"
+                          className="bg-black border border-[#D4AF37]/30 px-3 py-2 text-white"
+                          value={surcharge[lead.id]?.reason || ''}
+                          onChange={(e) =>
+                            setSurcharge((cur) => ({
+                              ...cur,
+                              [lead.id]: { reason: e.target.value, minutes: cur[lead.id]?.minutes || '', amount: cur[lead.id]?.amount || '' },
+                            }))
+                          }
+                        />
+                        <button
+                          type="button"
+                          className="px-4 py-2 border border-[#D4AF37] text-[#D4AF37]"
+                          onClick={() =>
+                            bookingAction(lead.id, 'surcharge', {
+                              kind: 'wait',
+                              minutes: surcharge[lead.id]?.minutes,
+                              amountCents: Math.round(Number(surcharge[lead.id]?.amount || 0) * 100),
+                              reason: surcharge[lead.id]?.reason || 'Wait time',
+                            })
+                          }
+                        >
+                          Charge wait
+                        </button>
+                        <button
+                          type="button"
+                          className="px-4 py-2 border border-[#D4AF37] text-[#D4AF37]"
+                          onClick={() =>
+                            bookingAction(lead.id, 'surcharge', {
+                              kind: 'damage',
+                              amountCents: Math.round(Number(surcharge[lead.id]?.amount || 0) * 100),
+                              reason: surcharge[lead.id]?.reason || 'Vehicle damage',
+                            })
+                          }
+                        >
+                          Charge damage
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : null}
               </article>
             ))}
           </div>
+          )}
         </div>
       </section>
     </div>

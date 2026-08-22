@@ -3,6 +3,7 @@ import { Calendar, Clock, MapPin, Car, User, Mail, Phone, Plane } from 'lucide-r
 import { AIRPORTS, COMPANY, SERVICE_TYPES, VEHICLE_TYPES } from '@/config/company';
 import { sendLead } from '@/utils/sendLead';
 import { getClientEmail, getClientProfilePrefill, hasClientSession } from '@/utils/clientSession';
+import TripQuote, { QuoteResult } from '@/components/TripQuote';
 
 export default function BookOnline() {
   const [formData, setFormData] = useState({
@@ -16,6 +17,7 @@ export default function BookOnline() {
     flightNumber: '',
     pickupLocation: '',
     dropoffLocation: '',
+    rideCategory: 'regular',
     vehicleType: '',
     passengers: '1',
     specialRequests: '',
@@ -24,6 +26,8 @@ export default function BookOnline() {
   const [submitted, setSubmitted] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
+  const [stops, setStops] = useState<string[]>([]);
+  const [quote, setQuote] = useState<QuoteResult | null>(null);
 
   useEffect(() => {
     const query = window.location.hash.split('?')[1] || window.location.search.replace(/^\?/, '');
@@ -50,6 +54,10 @@ export default function BookOnline() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!quote) {
+      setSendError('Calculate miles and price before submitting.');
+      return;
+    }
     setIsSending(true);
     setSendError(null);
 
@@ -67,6 +75,7 @@ export default function BookOnline() {
         meta: {
           pickup: formData.pickupLocation,
           dropoff: formData.dropoffLocation,
+          stops,
           date: formData.date,
           time: formData.time,
           service: serviceLabel,
@@ -74,6 +83,13 @@ export default function BookOnline() {
           passengers: formData.passengers,
           airport: airportLabel,
           flight: formData.flightNumber,
+          rideCategory: quote.rideCategory,
+          miles: String(quote.miles),
+          quoteCents: quote.totalCents,
+          waitPerMinuteCents: quote.waitPerMinuteCents,
+          country: quote.country,
+          lineItems: quote.lineItems,
+          paymentStatus: 'unpaid',
         },
         message: `Booking details:
 Name: ${formData.fullName}
@@ -85,7 +101,11 @@ Flight: ${formData.flightNumber || 'N/A'}
 Date: ${formData.date}
 Time: ${formData.time}
 Pickup: ${formData.pickupLocation}
+Stops: ${stops.join(' → ') || 'None'}
 Dropoff: ${formData.dropoffLocation}
+Miles: ${quote.miles}
+Quote: $${(quote.totalCents / 100).toFixed(2)}
+Passenger type: ${quote.rideCategory}
 Vehicle: ${formData.vehicleType}
 Passengers: ${formData.passengers}
 Special Requests: ${formData.specialRequests || 'None'}`,
@@ -104,10 +124,13 @@ Special Requests: ${formData.specialRequests || 'None'}`,
           flightNumber: '',
           pickupLocation: '',
           dropoffLocation: '',
+          rideCategory: 'regular',
           vehicleType: '',
           passengers: '1',
           specialRequests: '',
         });
+        setStops([]);
+        setQuote(null);
       }, 4000);
     } catch (err: any) {
       setSendError(err?.message || 'Failed to submit booking request');
@@ -295,33 +318,22 @@ Special Requests: ${formData.specialRequests || 'None'}`,
                     )}
                   </div>
                   <div className="mt-6">
-                    <label className="block text-gray-300 mb-2 flex items-center gap-2">
-                      <MapPin size={18} className="text-[#D4AF37]" />
-                      Pickup Location *
-                    </label>
-                    <input
-                      type="text"
-                      name="pickupLocation"
-                      value={formData.pickupLocation}
-                      onChange={handleChange}
-                      required
-                      className="w-full bg-black border border-[#D4AF37]/30 px-4 py-3 text-white focus:border-[#D4AF37] focus:outline-none transition-colors"
-                      placeholder="Street address, hotel, or terminal"
-                    />
-                  </div>
-                  <div className="mt-6">
-                    <label className="block text-gray-300 mb-2 flex items-center gap-2">
-                      <MapPin size={18} className="text-[#D4AF37]" />
-                      Dropoff Location *
-                    </label>
-                    <input
-                      type="text"
-                      name="dropoffLocation"
-                      value={formData.dropoffLocation}
-                      onChange={handleChange}
-                      required
-                      className="w-full bg-black border border-[#D4AF37]/30 px-4 py-3 text-white focus:border-[#D4AF37] focus:outline-none transition-colors"
-                      placeholder="Destination address"
+                    <TripQuote
+                      pickup={formData.pickupLocation}
+                      dropoff={formData.dropoffLocation}
+                      stops={stops}
+                      rideCategory={formData.rideCategory}
+                      quote={quote}
+                      onQuote={setQuote}
+                      onChange={(fields) => {
+                        setFormData((prev) => ({
+                          ...prev,
+                          pickupLocation: fields.pickup ?? prev.pickupLocation,
+                          dropoffLocation: fields.dropoff ?? prev.dropoffLocation,
+                          rideCategory: fields.rideCategory ?? prev.rideCategory,
+                        }));
+                        if (fields.stops) setStops(fields.stops);
+                      }}
                     />
                   </div>
                 </div>

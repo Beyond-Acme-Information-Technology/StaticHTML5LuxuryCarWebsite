@@ -96,6 +96,19 @@ const server = http.createServer(async (req, res) => {
       await clientLeads({ method: req.method, body, headers: req.headers }, proxyRes);
       return;
     }
+
+    const extra = {
+      '/api/quote': './api/quote',
+      '/api/pay': './api/pay',
+      '/api/staff-booking': './api/staff-booking',
+      '/api/stripe-confirm': './api/stripe-confirm',
+    };
+    if (extra[parsed.pathname]) {
+      const handler = require(extra[parsed.pathname]);
+      const body = req.method === 'GET' ? {} : await parseJSONBody(req);
+      await handler({ method: req.method, body, headers: req.headers }, proxyRes);
+      return;
+    }
   } catch (err) {
     console.error('Proxy error:', err);
     if (!res.headersSent) {

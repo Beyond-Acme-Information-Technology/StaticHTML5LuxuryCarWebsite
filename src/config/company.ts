@@ -30,6 +30,12 @@ export const VEHICLE_TYPES = [
   'Cadillac Escalade ESV',
 ] as const;
 
+export const RIDE_CATEGORIES = [
+  { id: 'regular', label: 'Regular / luxury chauffeur' },
+  { id: 'medical_non_urgent', label: 'Non-urgent medical transport' },
+  { id: 'patient_equipment', label: 'Patient and equipment transport' },
+] as const;
+
 export const SERVICE_TYPES = [
   { id: 'airport', label: 'Airport Transfer' },
   { id: 'point-to-point', label: 'Point to Point' },

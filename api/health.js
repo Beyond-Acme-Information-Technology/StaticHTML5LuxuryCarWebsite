@@ -17,6 +17,7 @@ module.exports = async (req, res) => {
         process.env.SUPABASE_SERVICE_ROLE_KEY &&
         (process.env.BREVO_API_KEY || process.env.BREVO_SMTP_KEY)
     ),
+    stripeConfigured: Boolean(process.env.STRIPE_SECRET_KEY),
     leadsStore: hasSupabase() ? 'supabase' : storeKind(),
   });
 };

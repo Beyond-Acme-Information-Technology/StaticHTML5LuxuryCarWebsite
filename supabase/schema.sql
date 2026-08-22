@@ -63,3 +63,30 @@ create table if not exists client_profiles (
 alter table client_profiles enable row level security;
 revoke all on table client_profiles from anon, authenticated;
 grant all on table client_profiles to service_role;
+
+alter table leads drop constraint if exists leads_status_check;
+alter table leads add constraint leads_status_check
+  check (status in ('new', 'contacted', 'accepted', 'confirmed', 'cancelled', 'closed'));
+
+create table if not exists pricing_rates (
+  country text not null,
+  ride_category text not null,
+  currency text not null default 'usd',
+  base_cents int not null,
+  per_mile_cents int not null,
+  per_stop_cents int not null,
+  wait_per_minute_cents int not null,
+  updated_at timestamptz not null default now(),
+  primary key (country, ride_category)
+);
+
+alter table pricing_rates enable row level security;
+revoke all on table pricing_rates from anon, authenticated;
+grant all on table pricing_rates to service_role;
+
+insert into pricing_rates (country, ride_category, currency, base_cents, per_mile_cents, per_stop_cents, wait_per_minute_cents)
+values
+  ('US', 'regular', 'usd', 4500, 450, 1500, 150),
+  ('US', 'medical_non_urgent', 'usd', 6500, 525, 2000, 200),
+  ('US', 'patient_equipment', 'usd', 8500, 650, 2500, 250)
+on conflict (country, ride_category) do nothing;
